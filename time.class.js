@@ -1,8 +1,6 @@
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
 
-const toInt = (nb) => parseInt(`${nb}`);
-
 const Timer = class {
   constructor(timer) {
     this.lastUpdate = new Date();
