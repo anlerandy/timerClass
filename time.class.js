@@ -6,7 +6,7 @@ const Timer = class {
     this.lastUpdate = new Date();
     this.createdAt = new Date();
     this.startedAt;
-    this.abort = false;
+    this.aborted = false;
     this.inProgress = false;
     this.timer = timer || 2 * MINUTE;
     this.timeId;
@@ -17,12 +17,19 @@ const Timer = class {
     if (this.timeId) clearTimeout(this.timeId);
   }
 
+  abort() {
+    this.aborted = true;
+    this.inProgress = false;
+    if (this.timeId) clearTimeout(this.timeId);
+  }
+
   update() {
     this.lastUpdate = new Date();
-    console.log(this.lastUpdate);
   }
 
   launchTimer(callback, arg) {
+    if (this.inProgress) throw new Error('Timer already launched.');
+    this.aborted = false;
     this.inProgress = true;
     this.startedAt = new Date();
     this.timeId = setTimeout(this.tick, this.timer, this, callback, arg);
@@ -31,7 +38,7 @@ const Timer = class {
   tick(self, callback, arg = 'TimeOut') {
     if (self.timeId) clearTimeout(self.timeId);
     self.verifyTime();
-    if (self.abort) callback(arg);
+    if (self.aborted) callback(arg);
     const now = new Date().valueOf();
     const limit = new Date(self.lastUpdate);
     limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
@@ -45,11 +52,30 @@ const Timer = class {
     const limit = new Date(this.lastUpdate);
     limit.setMilliseconds(this.lastUpdate.getMilliseconds() + this.timer);
     const limitValue = limit.valueOf();
-    this.abort = nowValue >= limitValue;
+    if (nowValue >= limitValue) {
+      this.aborted = true;
+      this.inProgress = false;
+    }
   }
 
   isAborted() {
-    return this.abort;
+    return this.aborted;
+  }
+
+  launchTimerPromise(promise, arg) {
+    const self = this;
+    return new Promise((resolve, reject) => {
+      self.launchTimer(reject, arg);
+      promise
+        .then((data) => {
+          self.done();
+          resolve(data);
+        })
+        .catch((error) => {
+          self.done();
+          reject(error);
+        });
+    });
   }
 };
 
