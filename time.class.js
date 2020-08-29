@@ -9,7 +9,7 @@ const Timer = class {
     this.lastUpdate = new Date();
     createdAt.set(this, new Date());
     this.startedAt;
-    aborted.set = (this, false);
+    aborted.set(this, false);
     this.inProgress = false;
     this.timer = timer || 2 * MINUTE;
     this.timeId;
@@ -25,7 +25,7 @@ const Timer = class {
   }
 
   abort() {
-    aborted.set = (this, false);
+    aborted.set(this, false);
     this.done();
   }
 
@@ -38,7 +38,7 @@ const Timer = class {
     if (callback && {}.toString.call(callback) !== '[object Function]')
       throw new Error('The passed callback is not a function.');
     if (this.inProgress) throw new Error('Timer already launched.');
-    aborted.set = (this, false);
+    aborted.set(this, false);
     this.inProgress = true;
     this.startedAt = new Date();
     this.timeId = setTimeout(this.tick, this.timer, this, callback, arg);
