@@ -70,7 +70,6 @@ const Timer = class {
 
   launchTimerPromise(promise, arg) {
     const self = this;
-    console.log('HERE');
     if (!promise || !promise.then || !promise.catch) return promise;
     return new Promise((resolve, reject) => {
       self.launchTimer(reject, arg);
