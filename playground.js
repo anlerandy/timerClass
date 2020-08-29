@@ -37,13 +37,21 @@ const test = async () => {
   const promises = array.reduce(async (acc, time) => {
     const previous = await acc;
     const waiter = await sleep(time);
-    timer.update();
+    timer.update('try');
     return [...previous, waiter];
   }, []);
   timer2.launchTimer(console.log);
-  const times = await timer.launchTimerPromise(promises, msg);
-  timer.done();
-  return times;
+  try {
+    console.log(timer.createdAt);
+    console.log(2, timer.createdAt);
+    const times = await timer.launchTimerPromise(promises, msg);
+    timer.done();
+    return times;
+  } catch (_) {
+    console.log(_.message);
+    timer.launchTimer(console.log, promises);
+    return await promises;
+  }
 };
 
 const main = async () => {
