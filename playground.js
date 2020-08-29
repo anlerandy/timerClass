@@ -44,7 +44,7 @@ const test = async () => {
   try {
     console.log(timer.createdAt);
     console.log(2, timer.createdAt);
-    const times = await timer.launchTimerPromise(promises, msg);
+    const times = await timer.launchTimer(promises, msg);
     timer.done();
     return times;
   } catch (_) {

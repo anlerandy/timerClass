@@ -34,6 +34,7 @@ const Timer = class {
   }
 
   launchTimer(callback, arg) {
+    if (callback && callback.then && callback.catch) return this.launchTimerPromise(callback, arg);
     if (callback && {}.toString.call(callback) !== '[object Function]')
       throw new Error('The passed callback is not a function.');
     if (this.inProgress) throw new Error('Timer already launched.');
@@ -69,7 +70,8 @@ const Timer = class {
 
   launchTimerPromise(promise, arg) {
     const self = this;
-    if (!promise?.then || !promise?.catch) return promise;
+    console.log('HERE');
+    if (!promise || !promise.then || !promise.catch) return promise;
     return new Promise((resolve, reject) => {
       self.launchTimer(reject, arg);
       promise
