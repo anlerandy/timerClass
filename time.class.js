@@ -19,8 +19,7 @@ const Timer = class {
 
   abort() {
     this.aborted = true;
-    this.inProgress = false;
-    if (this.timeId) clearTimeout(this.timeId);
+    this.done();
   }
 
   update() {
@@ -28,6 +27,8 @@ const Timer = class {
   }
 
   launchTimer(callback, arg) {
+    if (callback && {}.toString.call(callback) !== '[object Function]')
+      throw new Error('The passed callback is not a function.');
     if (this.inProgress) throw new Error('Timer already launched.');
     this.aborted = false;
     this.inProgress = true;
@@ -38,7 +39,7 @@ const Timer = class {
   tick(self, callback, arg = 'TimeOut') {
     if (self.timeId) clearTimeout(self.timeId);
     self.verifyTime();
-    if (self.aborted) callback(arg);
+    if (self.aborted && {}.toString.call(callback) === '[object Function]') callback(arg);
     const now = new Date().valueOf();
     const limit = new Date(self.lastUpdate);
     limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
@@ -52,10 +53,7 @@ const Timer = class {
     const limit = new Date(this.lastUpdate);
     limit.setMilliseconds(this.lastUpdate.getMilliseconds() + this.timer);
     const limitValue = limit.valueOf();
-    if (nowValue >= limitValue) {
-      this.aborted = true;
-      this.inProgress = false;
-    }
+    if (nowValue >= limitValue) this.abort();
   }
 
   isAborted() {
@@ -72,7 +70,7 @@ const Timer = class {
           resolve(data);
         })
         .catch((error) => {
-          self.done();
+          self.abort();
           reject(error);
         });
     });

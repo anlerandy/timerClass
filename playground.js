@@ -9,10 +9,6 @@ const TWO = 2 * MINUTE;
 const ONEMHALF = MINUTE + HALF;
 const TWOMHALF = ONEMHALF + MINUTE;
 
-const abort = (err = 'TIME is OUT!') => {
-  throw new Error(err);
-};
-
 const test = async () => {
   const array = [
     SECOND,
@@ -36,15 +32,16 @@ const test = async () => {
     TWOMHALF
   ];
   const timer = new Timer(10 * SECOND);
-  timer.launchTimer(abort, `Failed to finish before time runs out...`);
+  const timer2 = new Timer(10 * SECOND);
+  const msg = 'Failed to finish before time runs out...';
   const promises = array.reduce(async (acc, time) => {
     const previous = await acc;
     const waiter = await sleep(time);
     timer.update();
     return [...previous, waiter];
   }, []);
-  timer.update();
-  const times = await promises;
+  timer2.launchTimer(console.log);
+  const times = await timer.launchTimerPromise(promises, msg);
   timer.done();
   return times;
 };
@@ -53,8 +50,10 @@ const main = async () => {
   try {
     const times = await test();
     console.log({ times });
+    process.exit();
   } catch (e) {
     console.log(e.message || e);
+    process.exit();
   }
 };
 
