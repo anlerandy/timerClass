@@ -3,24 +3,42 @@ const MINUTE = 60 * SECOND;
 
 const createdAt = new WeakMap();
 const aborted = new WeakMap();
+const lastUpdate = new WeakMap();
+const inProgress = new WeakMap();
+const timeId = new WeakMap();
 
 const Timer = class {
   constructor(timer) {
-    this.lastUpdate = new Date();
+    lastUpdate.set(this, new Date());
     createdAt.set(this, new Date());
     this.startedAt;
     aborted.set(this, false);
-    this.inProgress = false;
+    inProgress.set(this, false);
     this.timer = timer || 2 * MINUTE;
-    this.timeId;
   }
 
   get createdAt() {
     return createdAt.get(this);
   }
 
+  get lastUpdate() {
+    return lastUpdate.get(this);
+  }
+
+  get inProgress() {
+    return inProgress.get(this);
+  }
+
+  get timeId() {
+    return timeId.get(this);
+  }
+
+  get isAborted() {
+    return aborted.get(this);
+  }
+
   done() {
-    this.inProgress = false;
+    inProgress.set(this, false);
     if (this.timeId) clearTimeout(this.timeId);
   }
 
@@ -30,7 +48,7 @@ const Timer = class {
   }
 
   update() {
-    this.lastUpdate = new Date();
+    lastUpdate.set(this, new Date());
   }
 
   launchTimer(callback, arg) {
@@ -39,9 +57,9 @@ const Timer = class {
       throw new Error('The passed callback is not a function.');
     if (this.inProgress) throw new Error('Timer already launched.');
     aborted.set(this, false);
-    this.inProgress = true;
+    inProgress.set(this, true);
     this.startedAt = new Date();
-    this.timeId = setTimeout(this.tick, this.timer, this, callback, arg);
+    timeId.set(this, setTimeout(this.tick, this.timer, this, callback, arg));
   }
 
   tick(self, callback, arg = 'TimeOut') {
@@ -52,7 +70,7 @@ const Timer = class {
     const limit = new Date(self.lastUpdate);
     limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
     const nextTick = limit - now;
-    if (self.inProgress) self.timeId = setTimeout(self.tick, nextTick, self, callback, arg);
+    if (self.inProgress) timeId.set(this, setTimeout(self.tick, nextTick, self, callback, arg));
   }
 
   verifyTime() {
@@ -62,10 +80,6 @@ const Timer = class {
     limit.setMilliseconds(this.lastUpdate.getMilliseconds() + this.timer);
     const limitValue = limit.valueOf();
     if (nowValue >= limitValue) this.abort();
-  }
-
-  get isAborted() {
-    return aborted.get(this);
   }
 
   launchTimerPromise(promise, arg) {
