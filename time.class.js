@@ -69,6 +69,7 @@ const Timer = class {
 
   launchTimerPromise(promise, arg) {
     const self = this;
+    if (!promise?.then || !promise?.catch) return promise;
     return new Promise((resolve, reject) => {
       self.launchTimer(reject, arg);
       promise
