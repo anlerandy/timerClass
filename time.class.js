@@ -13,17 +13,24 @@ const _arg = new WeakMap();
 const TIMERS = new WeakMap();
 
 const Timer = class {
-  constructor(timer, id) {
+  constructor(timer, options = {}) {
+		const { id, forceCreate, save = true, destroy = true } = options;
     lastUpdate.set(this, new Date());
     createdAt.set(this, new Date());
     aborted.set(this, false);
     inProgress.set(this, false);
 		this.timer = timer || 2 * MINUTE;
-		id = getId(id)
+
+		try { id = getId(id) } catch (e) {}
+		if (!id && forceCreate) id = getId();
 		_id.set(this, id); 
-		if (id) saveTimer(this);
+
+		if (id)  {
+			if (save) saveTimer(this);
+		}
 		else throw new Error('Timer already exist. Please use `getById` Method.');
 		Object.freeze(this);
+		console.log({id});
   }
 
 	get _id() {
@@ -110,7 +117,7 @@ const Timer = class {
   launchTimerPromise(promise, arg) {
 		if (this.inProgress) throw new Error('Timer already launched.');
 		const self = this;
-		if (promise instanceof Promise) return promise;
+		if (!promise instanceof Promise) throw new Error('`First argument` must be a Promise or a Function.');
     return new Promise((resolve, reject) => {
       self.launchTimer(reject, arg);
       promise
@@ -130,6 +137,7 @@ const Timer = class {
 function getId(id = ''){
 	validateId(id);
 	const timers = TIMERS.get(Timer);
+	console.log({timers})
 	if (!timers) return id || 1;
 	const ids = Object.keys(timers);
 	if (id) 
@@ -155,8 +163,8 @@ function getTimerById(id, options = {}) {
 	validateId(id);
 	const timers = TIMERS.get(Timer) || {};
 	const timer = timers[id];
+	if (!timer && createOne) return new Timer(time, { ...options, id });
 	console.log({timer});
-	if (!timer && createOne) return new Timer(time, id);
 	return timer;
 }
 
