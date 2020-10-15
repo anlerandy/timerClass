@@ -104,4 +104,5 @@ const Timer = class {
   }
 };
 
-export default Timer;
+// export default Timer;
+module.exports = Timer;
