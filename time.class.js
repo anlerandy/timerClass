@@ -43,7 +43,7 @@ const Timer = class {
   }
 
   abort() {
-    aborted.set(this, false);
+    aborted.set(this, true);
     this.done();
   }
 
@@ -52,7 +52,7 @@ const Timer = class {
   }
 
   launchTimer(callback, arg) {
-    if (callback && callback.then && callback.catch) return this.launchTimerPromise(callback, arg);
+    if (callback instanceof Promise) return this.launchTimerPromise(callback, arg);
     if (callback && {}.toString.call(callback) !== '[object Function]')
       throw new Error('The passed callback is not a function.');
     if (this.inProgress) throw new Error('Timer already launched.');
@@ -65,12 +65,16 @@ const Timer = class {
   tick(self, callback, arg = 'TimeOut') {
     if (self.timeId) clearTimeout(self.timeId);
     self.verifyTime();
-    if (self.isAborted && {}.toString.call(callback) === '[object Function]') callback(arg);
+		if (self.isAborted) 
+			if ({}.toString.call(callback) === '[object Function]') return callback(arg);
+			else return console.error('Timer Error: Callback is no longer a function. No call on abortion.', arg);
     const now = new Date().valueOf();
     const limit = new Date(self.lastUpdate);
     limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
-    const nextTick = limit - now;
-    if (self.inProgress) timeId.set(this, setTimeout(self.tick, nextTick, self, callback, arg));
+    let nextTick = limit.valueOf() - now;
+    if (self.inProgress)
+      if (nextTick <= 0) self.tick(self, callback, arg);
+      else timeId.set(this, setTimeout(self.tick, nextTick, self, callback, arg));
   }
 
   verifyTime() {
@@ -83,8 +87,8 @@ const Timer = class {
   }
 
   launchTimerPromise(promise, arg) {
-    const self = this;
-    if (!promise || !promise.then || !promise.catch) return promise;
+		const self = this;
+		if (promise instanceof Promise) return promise;
     return new Promise((resolve, reject) => {
       self.launchTimer(reject, arg);
       promise
