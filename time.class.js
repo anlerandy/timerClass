@@ -2,26 +2,41 @@ const SECOND = 1000;
 const MINUTE = 60 * SECOND;
 
 const createdAt = new WeakMap();
+const startedAt = new WeakMap();
 const aborted = new WeakMap();
 const lastUpdate = new WeakMap();
 const inProgress = new WeakMap();
 const timeId = new WeakMap();
-const CALLBACK = new WeakMap();
-const ARG = new WeakMap();
+const _id = new WeakMap();
+const _callback = new WeakMap();
+const _arg = new WeakMap();
+const TIMERS = new WeakMap();
 
 const Timer = class {
-  constructor(timer) {
+  constructor(timer, id) {
     lastUpdate.set(this, new Date());
     createdAt.set(this, new Date());
-    this.startedAt;
     aborted.set(this, false);
     inProgress.set(this, false);
-    this.timer = timer || 2 * MINUTE;
+		this.timer = timer || 2 * MINUTE;
+		id = getId(id)
+		_id.set(this, id); 
+		if (id) saveTimer(this);
+		else throw new Error('Timer already exist. Please use `getById` Method.');
+		Object.freeze(this);
   }
+
+	get _id() {
+		return _id.get(this);
+	}
 
   get createdAt() {
     return createdAt.get(this);
-  }
+	}
+	
+	get startedAt() {
+		return startedAt.get(this);
+	}
 
   get lastUpdate() {
     return lastUpdate.get(this);
@@ -54,16 +69,15 @@ const Timer = class {
   }
 
   launchTimer(callback, arg = 'TimeOut') {
+		if (this.inProgress) throw new Error('Timer already launched.');
     if (callback instanceof Promise) return this.launchTimerPromise(callback, arg);
     if (callback && {}.toString.call(callback) !== '[object Function]')
 			throw new Error('The passed callback is not a function.');
-		// Protect callback at creation.
-		CALLBACK.set(this, callback);
-		ARG.set(this, arg);
-    if (this.inProgress) throw new Error('Timer already launched.');
+		_callback.set(this, callback);
+		_arg.set(this, arg);
     aborted.set(this, false);
     inProgress.set(this, true);
-    this.startedAt = new Date();
+    startedAt.set(this, new Date());
     timeId.set(this, setTimeout(this.tick, this.timer, this));
   }
 
@@ -71,8 +85,8 @@ const Timer = class {
     if (self.timeId) clearTimeout(self.timeId);
     self.verifyTime();
 		if (self.isAborted)  {
-			const callback = CALLBACK.get(self);
-			const arg = ARG.get(self);
+			const callback = _callback.get(self);
+			const arg = _arg.get(self);
 			return callback(arg);
 		}
     const now = new Date().valueOf();
@@ -94,6 +108,7 @@ const Timer = class {
   }
 
   launchTimerPromise(promise, arg) {
+		if (this.inProgress) throw new Error('Timer already launched.');
 		const self = this;
 		if (promise instanceof Promise) return promise;
     return new Promise((resolve, reject) => {
@@ -110,6 +125,44 @@ const Timer = class {
     });
   }
 };
+
+
+function getId(id = ''){
+	validateId(id);
+	const timers = TIMERS.get(Timer);
+	if (!timers) return id || 1;
+	const ids = Object.keys(timers);
+	if (id) 
+		if (!ids.includes(`${id}`)) return id
+		else return;
+	id = 1;
+	while (ids.includes(`${id}`)) ++id;
+	return id;
+}
+
+function saveTimer(timer) {
+	const timers = TIMERS.get(Timer) || {};
+	TIMERS.set(Timer, { ...timers, [timer._id]: timer });
+}
+
+function validateId(id) { 
+	if (typeof id !== 'string' && typeof id !== 'number') throw new Error('`_id` must be a String or a Number.');
+	if (id === 0) throw new Error('`_id` must not be `null` or equal to `0`.');
+}
+
+function getTimerById(id, options = {}) {
+	const { createOne = true, time } = options;
+	validateId(id);
+	const timers = TIMERS.get(Timer) || {};
+	const timer = timers[id];
+	console.log({timer});
+	if (!timer && createOne) return new Timer(time, id);
+	return timer;
+}
+
+Timer.getById = getTimerById;
+
+Object.freeze(Timer);
 
 // export default Timer;
 module.exports = Timer;
