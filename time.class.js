@@ -6,6 +6,8 @@ const aborted = new WeakMap();
 const lastUpdate = new WeakMap();
 const inProgress = new WeakMap();
 const timeId = new WeakMap();
+const CALLBACK = new WeakMap();
+const ARG = new WeakMap();
 
 const Timer = class {
   constructor(timer) {
@@ -51,23 +53,28 @@ const Timer = class {
     lastUpdate.set(this, new Date());
   }
 
-  launchTimer(callback, arg) {
+  launchTimer(callback, arg = 'TimeOut') {
     if (callback instanceof Promise) return this.launchTimerPromise(callback, arg);
     if (callback && {}.toString.call(callback) !== '[object Function]')
-      throw new Error('The passed callback is not a function.');
+			throw new Error('The passed callback is not a function.');
+		// Protect callback at creation.
+		CALLBACK.set(this, callback);
+		ARG.set(this, arg);
     if (this.inProgress) throw new Error('Timer already launched.');
     aborted.set(this, false);
     inProgress.set(this, true);
     this.startedAt = new Date();
-    timeId.set(this, setTimeout(this.tick, this.timer, this, callback, arg));
+    timeId.set(this, setTimeout(this.tick, this.timer, this));
   }
 
-  tick(self, callback, arg = 'TimeOut') {
+  tick(self) {
     if (self.timeId) clearTimeout(self.timeId);
     self.verifyTime();
-		if (self.isAborted) 
-			if ({}.toString.call(callback) === '[object Function]') return callback(arg);
-			else return console.error('Timer Error: Callback is no longer a function. No call on abortion.', arg);
+		if (self.isAborted)  {
+			const callback = CALLBACK.get(self);
+			const arg = ARG.get(self);
+			return callback(arg);
+		}
     const now = new Date().valueOf();
     const limit = new Date(self.lastUpdate);
     limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
