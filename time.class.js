@@ -117,7 +117,7 @@ const Timer = class {
   tick(self) {
     if (self.timeId) clearTimeout(self.timeId);
     self.verifyTime();
-		if (self.isAborted)  {
+		if (self.isAborted || !self._id)  {
 			const callback = _callback.get(self);
 			const arg = _arg.get(self);
 			return callback(arg);
@@ -126,7 +126,7 @@ const Timer = class {
     const limit = new Date(self.lastUpdate);
     limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
     let nextTick = limit.valueOf() - now;
-    if (self.inProgress)
+    if (self.inProgress && self._id)
       if (nextTick <= 0) self.tick(self, callback, arg);
       else timeId.set(this, setTimeout(self.tick, nextTick, self, callback, arg));
   }
