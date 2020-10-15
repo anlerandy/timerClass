@@ -6,6 +6,7 @@ const startedAt = new WeakMap();
 const aborted = new WeakMap();
 const lastUpdate = new WeakMap();
 const inProgress = new WeakMap();
+const _destroy = new WeakMap();
 const timeId = new WeakMap();
 const _id = new WeakMap();
 const _callback = new WeakMap();
@@ -14,14 +15,18 @@ const TIMERS = new WeakMap();
 
 const Timer = class {
   constructor(timer, options = {}) {
-		const { id, forceCreate, save = true, destroy = true } = options;
-    lastUpdate.set(this, new Date());
-    createdAt.set(this, new Date());
+		const { forceCreate, save = true, destroy = true } = options;
+		let { id } = options;
+		lastUpdate.set(this, new Date());
+		createdAt.set(this, new Date());
     aborted.set(this, false);
-    inProgress.set(this, false);
+		inProgress.set(this, false);
+		_destroy.set(this, destroy)
 		this.timer = timer || 2 * MINUTE;
 
-		try { id = getId(id) } catch (e) {}
+		try { id = getId(id) } catch (e) {
+			if (!forceCreate) throw e;
+		}
 		if (!id && forceCreate) id = getId();
 		_id.set(this, id); 
 
@@ -58,11 +63,32 @@ const Timer = class {
 
   get isAborted() {
     return aborted.get(this);
-  }
+	}
+	
+	destroy() {
+		// Depending on env: no pointer on class should free its allocation.
+		createdAt.delete(this);
+		startedAt.delete(this);
+		aborted.delete(this);
+		lastUpdate.delete(this);
+		inProgress.delete(this);
+		_destroy.delete(this);
+		timeId.delete(this);
+		_callback.delete(this);
+		_arg.delete(this);
+		const timers = TIMERS.get(Timer);
+		if (timers) {
+			const { [this._id]: timer, ...others } = timers;
+			TIMERS.set(Timer, others);
+		}
+		_id.delete(this);
+		return null;
+	}
 
   done() {
     inProgress.set(this, false);
-    if (this.timeId) clearTimeout(this.timeId);
+		if (this.timeId) clearTimeout(this.timeId);
+		if (_destroy.get(this)) this.destroy();
   }
 
   abort() {
@@ -76,6 +102,7 @@ const Timer = class {
 
   launchTimer(callback, arg = 'TimeOut') {
 		if (this.inProgress) throw new Error('Timer already launched.');
+		if (!this._id) throw new Error('Timer is being deleted.');
     if (callback instanceof Promise) return this.launchTimerPromise(callback, arg);
     if (callback && {}.toString.call(callback) !== '[object Function]')
 			throw new Error('The passed callback is not a function.');
@@ -153,7 +180,7 @@ function saveTimer(timer) {
 
 function validateId(id) { 
 	if (typeof id !== 'string' && typeof id !== 'number') throw new Error('`_id` must be a String or a Number.');
-	if (id === 0) throw new Error('`_id` must not be `null` or equal to `0`.');
+	if (!id) throw new Error('`_id` must not be an empty String or equal to 0.');
 }
 
 function getTimerById(id, options = {}) {

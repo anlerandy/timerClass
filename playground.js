@@ -31,10 +31,11 @@ const test = async () => {
     ONEMHALF,
     TWO,
     TWOMHALF
-  ];
-	const timer = Timer.getById('testTimer')
+	];
+	const timer = Timer.getById('testTimer'/* , {destroy: false} */)
   const timer2 = Timer.getById('testTimer')
-	console.log(timer._id, timer2._id);
+  const timer3 = Timer.getById('1')
+  const timer4 = Timer.getById('testTimer2')
   const msg = 'Failed to finish before time runs out...';
   const promises = array.reduce(async (acc, time) => {
 		const previous = await acc;
@@ -42,17 +43,13 @@ const test = async () => {
     timer.update('try');
     return [...previous, waiter];
   }, []);
-  // timer2.launchTimer(console.log);
   try {
     const times = timer.launchTimer(promises, msg);
-		// timer2.launchTimer(promises, msg);
-		await timer;
-		await timer2;
-    timer.done();
+    // timer.done();
+    timer.launchTimer(promises, msg);
     return times;
   } catch (_) {
-    console.log(_.message);
-    // timer.launchTimer(console.log, promises);
+    console.log('here:', _.message);
     return await promises;
   }
 };
@@ -64,7 +61,6 @@ const main = async () => {
 		console.log(Timer.timer);
     process.exit();
   } catch (e) {
-    console.log(e.message || e);
     process.exit();
   }
 };
