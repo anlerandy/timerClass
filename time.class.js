@@ -30,7 +30,6 @@ const Timer = class {
 		}
 		else throw new Error('Timer already exist. Please use `getById` Method.');
 		Object.freeze(this);
-		console.log({id});
   }
 
 	get _id() {
@@ -137,7 +136,6 @@ const Timer = class {
 function getId(id = ''){
 	validateId(id);
 	const timers = TIMERS.get(Timer);
-	console.log({timers})
 	if (!timers) return id || 1;
 	const ids = Object.keys(timers);
 	if (id) 
@@ -164,7 +162,6 @@ function getTimerById(id, options = {}) {
 	const timers = TIMERS.get(Timer) || {};
 	const timer = timers[id];
 	if (!timer && createOne) return new Timer(time, { ...options, id });
-	console.log({timer});
 	return timer;
 }
 
