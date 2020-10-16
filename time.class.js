@@ -15,7 +15,7 @@ const TIMERS = new WeakMap();
 
 const Timer = class {
   constructor(timer, options = {}) {
-		const { forceCreate, save = true, destroy = true } = options;
+		const { forceCreate, save = true, destroy = true, verbose = false } = options;
 		let { id } = options;
 		lastUpdate.set(this, new Date());
 		createdAt.set(this, new Date());
@@ -71,11 +71,18 @@ const Timer = class {
 		if (!this._id) return;
 		createdAt.delete(this);
 		startedAt.delete(this);
-		aborted.delete(this);
 		lastUpdate.delete(this);
 		inProgress.delete(this);
-		_destroy.delete(this);
 		timeId.delete(this);
+		const isDestroyed = _destroy.get(this);
+		const isAborted = aborted.get(this);
+		aborted.delete(this);
+		_destroy.delete(this);
+		if (isDestroyed && isAborted) {
+			const callback = _callback.get(this);
+			const arg = _arg.get(this);
+			if (callback) callback(arg);
+		}
 		_callback.delete(this);
 		_arg.delete(this);
 		const timers = TIMERS.get(Timer);
@@ -118,20 +125,18 @@ const Timer = class {
 
   _tick(self) {
 		if (!self instanceof Timer) throw new Error('Tick is being call without instance of Timer.');
-    if (self.timeId) clearTimeout(self.timeId);
+		if (self.timeId) clearTimeout(self.timeId);
     verifyTime(self);
-		if (self.isAborted || !self._id)  {
-			const callback = _callback.get(self);
-			const arg = _arg.get(self);
-			return callback(arg);
-		}
+		const callback = _callback.get(self);
+		const arg = _arg.get(self);
+		if (self.isAborted || !self._id) return callback ? callback(arg) : null;
     const now = new Date().valueOf();
     const limit = new Date(self.lastUpdate);
     limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
     let nextTick = limit.valueOf() - now;
     if (self.inProgress && self._id)
-      if (nextTick <= 0) self._tick(self, callback, arg);
-      else timeId.set(this, setTimeout(self._tick, nextTick, self, callback, arg));
+      if (nextTick <= 0) self._tick(self);
+      else timeId.set(this, setTimeout(self._tick, nextTick, self));
   }
 
   launchTimerPromise(promise, arg) {
