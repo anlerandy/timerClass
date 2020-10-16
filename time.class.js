@@ -113,12 +113,13 @@ const Timer = class {
     aborted.set(this, false);
     inProgress.set(this, true);
     startedAt.set(this, new Date());
-    timeId.set(this, setTimeout(this.tick, this.timer, this));
+    timeId.set(this, setTimeout(this._tick, this.timer, this));
   }
 
-  tick(self) {
+  _tick(self) {
+		if (!self instanceof Timer) throw new Error('Tick is being call without instance of Timer.');
     if (self.timeId) clearTimeout(self.timeId);
-    self.verifyTime();
+    verifyTime(self);
 		if (self.isAborted || !self._id)  {
 			const callback = _callback.get(self);
 			const arg = _arg.get(self);
@@ -129,17 +130,8 @@ const Timer = class {
     limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
     let nextTick = limit.valueOf() - now;
     if (self.inProgress && self._id)
-      if (nextTick <= 0) self.tick(self, callback, arg);
-      else timeId.set(this, setTimeout(self.tick, nextTick, self, callback, arg));
-  }
-
-  verifyTime() {
-    const now = new Date();
-    const nowValue = now.valueOf();
-    const limit = new Date(this.lastUpdate);
-    limit.setMilliseconds(this.lastUpdate.getMilliseconds() + this.timer);
-    const limitValue = limit.valueOf();
-    if (nowValue >= limitValue) this.abort();
+      if (nextTick <= 0) self._tick(self, callback, arg);
+      else timeId.set(this, setTimeout(self._tick, nextTick, self, callback, arg));
   }
 
   launchTimerPromise(promise, arg) {
@@ -160,6 +152,15 @@ const Timer = class {
     });
   }
 };
+
+function verifyTime(self) {
+    const now = new Date();
+    const nowValue = now.valueOf();
+    const limit = new Date(self.lastUpdate);
+    limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
+    const limitValue = limit.valueOf();
+    if (nowValue >= limitValue) self.abort();
+  }
 
 
 function getId(id = ''){
