@@ -7,7 +7,7 @@ const aborted = new WeakMap();
 const lastUpdate = new WeakMap();
 const inProgress = new WeakMap();
 const _destroy = new WeakMap();
-const timeId = new WeakMap();
+const _timeId = new WeakMap();
 const _id = new WeakMap();
 const _callback = new WeakMap();
 const _arg = new WeakMap();
@@ -15,7 +15,7 @@ const TIMERS = new WeakMap();
 
 const Timer = class {
   constructor(timer, options = {}) {
-		const { forceCreate, save = true, destroy = true, verbose = false } = options;
+		const { forceCreate, save = true, destroy = true, verbose = 0 } = options;
 		let { id } = options;
 		lastUpdate.set(this, new Date());
 		createdAt.set(this, new Date());
@@ -57,8 +57,8 @@ const Timer = class {
     return inProgress.get(this);
   }
 
-  get timeId() {
-    return timeId.get(this);
+  get _timeId() {
+    return _timeId.get(this);
   }
 
   get isAborted() {
@@ -73,7 +73,7 @@ const Timer = class {
 		startedAt.delete(this);
 		lastUpdate.delete(this);
 		inProgress.delete(this);
-		timeId.delete(this);
+		_timeId.delete(this);
 		const isDestroyed = _destroy.get(this);
 		const isAborted = aborted.get(this);
 		aborted.delete(this);
@@ -96,7 +96,7 @@ const Timer = class {
 
   done() {
     inProgress.set(this, false);
-		if (this.timeId) clearTimeout(this.timeId);
+		if (this._timeId) clearTimeout(this._timeId);
 		if (_destroy.get(this)) this.destroy();
   }
 
@@ -120,12 +120,12 @@ const Timer = class {
     aborted.set(this, false);
     inProgress.set(this, true);
     startedAt.set(this, new Date());
-    timeId.set(this, setTimeout(this._tick, this.timer, this));
+    _timeId.set(this, setTimeout(this._tick, this.timer, this));
   }
 
   _tick(self) {
 		if (!self instanceof Timer) throw new Error('Tick is being call without instance of Timer.');
-		if (self.timeId) clearTimeout(self.timeId);
+		if (self._timeId) clearTimeout(self._timeId);
     verifyTime(self);
 		const callback = _callback.get(self);
 		const arg = _arg.get(self);
@@ -136,7 +136,7 @@ const Timer = class {
     let nextTick = limit.valueOf() - now;
     if (self.inProgress && self._id)
       if (nextTick <= 0) self._tick(self);
-      else timeId.set(this, setTimeout(self._tick, nextTick, self));
+      else _timeId.set(this, setTimeout(self._tick, nextTick, self));
   }
 
   launchTimerPromise(promise, arg) {
