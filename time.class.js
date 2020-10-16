@@ -66,7 +66,9 @@ const Timer = class {
 	}
 	
 	destroy() {
-		// Depending on env: no pointer on class should free its allocation.
+		if (this.inProgress && !this.aborted)
+			throw new Error('Please abort() or done() the Timer before destroying it.');
+		if (!this._id) return;
 		createdAt.delete(this);
 		startedAt.delete(this);
 		aborted.delete(this);
@@ -142,8 +144,8 @@ const Timer = class {
 
   launchTimerPromise(promise, arg) {
 		if (this.inProgress) throw new Error('Timer already launched.');
-		const self = this;
 		if (!promise instanceof Promise) throw new Error('`First argument` must be a Promise or a Function.');
+		const self = this;
     return new Promise((resolve, reject) => {
       self.launchTimer(reject, arg);
       promise
