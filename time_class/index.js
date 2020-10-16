@@ -162,13 +162,13 @@ const Timer = class {
 };
 
 function verifyTime(self) {
-    const now = new Date();
-    const nowValue = now.valueOf();
-    const limit = new Date(self.lastUpdate);
-    limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
-    const limitValue = limit.valueOf();
-    if (nowValue >= limitValue) self.abort();
-  }
+  const now = new Date();
+  const nowValue = now.valueOf();
+  const limit = new Date(self.lastUpdate);
+  limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
+  const limitValue = limit.valueOf();
+  if (nowValue >= limitValue) self.abort();
+}
 
 
 function getId(id = ''){
@@ -207,5 +207,4 @@ Timer.getById = getTimerById;
 
 Object.freeze(Timer);
 
-// export default Timer;
 module.exports = Timer;

@@ -1,5 +1,4 @@
-// import Timer from './time.class';
-const Timer = require('./time.class');
+const Timer = require('./index');
 
 const sleep = (time) => new Promise((res) => setTimeout(res, time, time));
 

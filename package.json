@@ -1,0 +1,26 @@
+{
+  "name": "timer",
+  "version": "1.0.0",
+  "description": "TimeOut manager for sensible process.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ./playground.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anlerandy/timerClass.git"
+  },
+  "keywords": [
+    "timeout",
+    "timer"
+  ],
+  "author": "Andy L.",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anlerandy/timerClass/issues"
+  },
+  "homepage": "https://github.com/anlerandy/timerClass#readme",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  }
+}
