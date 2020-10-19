@@ -35,7 +35,7 @@ const Timer = class {
 		if (id)  {
 			if (save) saveTimer(this);
 		}
-		else throw new Error('Timer already exist. Please use `getById` Method.');
+		else throw new Error('Timer already exist. To retrieve the existing one, please use `getById` Method.');
 		Object.freeze(this);
   }
 
