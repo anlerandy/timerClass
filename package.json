@@ -4,7 +4,8 @@
   "description": "TimeOut manager for sensible process.",
   "main": "index.js",
   "scripts": {
-    "test": "node ./playground.js"
+    "test": "clear && tap ./unit_tests/index.js",
+    "nodetest": "clear && node ./unit_tests/index.js"
   },
   "repository": {
     "type": "git",
@@ -22,5 +23,8 @@
   "homepage": "https://github.com/anlerandy/timerClass#readme",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
+  },
+  "devDependencies": {
+    "tap": "^14.10.8"
   }
 }

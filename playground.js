@@ -53,7 +53,7 @@ const test = async () => {
 };
 
 const test2 = async () => {
-	const timer = Timer.getById('testTimer', { destroy: true, time: 10 * SECOND })
+	const timer = Timer.getById('testTimer', { destroy: true, time: 10 /* * SECOND */ })
   try {
 		const promise = await new Promise(async (resolve, reject) => {
 			timer.launchTimer(reject, msg);
