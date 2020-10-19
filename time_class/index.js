@@ -1,5 +1,7 @@
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
+// The margin is a timestamp preventing rejection due to initialisation/launch time.
+const MARGIN = 100;
 
 const createdAt = new WeakMap();
 const startedAt = new WeakMap();
@@ -22,7 +24,7 @@ const Timer = class {
     aborted.set(this, false);
 		inProgress.set(this, false);
 		_destroy.set(this, destroy)
-		this.timer = timer || 2 * MINUTE;
+		this.timer = (timer || 2 * MINUTE) + MARGIN;
 
 		try { id = getId(id) } catch (e) {
 			if (!forceCreate) throw e;
