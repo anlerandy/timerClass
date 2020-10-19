@@ -132,32 +132,23 @@ const Timer = class {
     verifyTime(self);
 		const callback = _callback.get(self);
 		const arg = _arg.get(self);
-		if (self.isAborted || !self._id) return callback ? callback(arg) : null;
-    const now = new Date().valueOf();
-    const limit = new Date(self.lastUpdate);
-    limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
-    let nextTick = limit.valueOf() - now;
-    if (self.inProgress && self._id)
+		if (self.isAborted) return callback ? callback(arg) : arg;
+    if (self.inProgress && self._id) {
+			const now = new Date().valueOf();
+			const limit = new Date(self.lastUpdate);
+			limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
+			let nextTick = limit.valueOf() - now;
       if (nextTick <= 0) self._tick(self);
       else _timeId.set(this, setTimeout(self._tick, nextTick, self));
+		}
   }
 
   launchTimerPromise(promise, arg) {
 		if (this.inProgress) throw new Error('Timer already launched.');
 		if (!promise instanceof Promise) throw new Error('`First argument` must be a Promise or a Function.');
 		const self = this;
-    return new Promise((resolve, reject) => {
-      self.launchTimer(reject, arg);
-      promise
-        .then((data) => {
-          self.done();
-          resolve(data);
-        })
-        .catch((error) => {
-          self.abort();
-          reject(error);
-        });
-    });
+		const timerPromise = new Promise((_, reject) =>  self.launchTimer(reject, arg));
+		return Promise.race([promise, timerPromise]);
   }
 };
 
@@ -171,8 +162,8 @@ function verifyTime(self) {
 }
 
 
-function getId(id = ''){
-	validateId(id);
+function getId(id){
+	if (id) validateId(id);
 	const timers = TIMERS.get(Timer);
 	if (!timers) return id || 1;
 	const ids = Object.keys(timers);
