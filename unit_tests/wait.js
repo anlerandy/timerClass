@@ -26,4 +26,4 @@ const waitFail = () => wait(_wrongArray);
 
 const expected = _array;
 
-module.exports = { wait, waitFail, expected };
+module.exports = { wait, waitFail, expected, SECOND, MINUTE };
