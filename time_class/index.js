@@ -26,7 +26,9 @@ const Timer = class {
 		_destroy.set(this, destroy)
 		this.timer = (timer || 2 * MINUTE) + MARGIN;
 
-		try { id = getId(id) } catch (e) {
+		try { 
+			id = getId(id) 
+		} catch (e) {
 			if (!forceCreate) throw e;
 		}
 		if (!id && forceCreate) id = getId();
