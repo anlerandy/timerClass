@@ -70,7 +70,7 @@ const Timer = class {
 	destroy() {
 		if (!this._id) return;
 		if (this.inProgress && !this.aborted)
-		throw new Error('Please abort() or done() the Timer before destroying it.');
+			throw new Error('Please abort() or done() the Timer before destroying it.');
 		createdAt.delete(this);
 		startedAt.delete(this);
 		lastUpdate.delete(this);
@@ -99,7 +99,10 @@ const Timer = class {
   done() {
 		if (!this._id) return;
     inProgress.set(this, false);
-		if (this._timeId) clearTimeout(this._timeId);
+		if (this._timeId) {
+			clearTimeout(this._timeId);
+			_timeId.set(this, undefined);
+		}
 		if (_destroy.get(this)) this.destroy();
   }
 
@@ -155,6 +158,7 @@ const Timer = class {
 };
 
 function verifyTime(self) {
+	if (self.isAborted || !self.inProgress) return;
   const now = new Date();
   const nowValue = now.valueOf();
   const limit = new Date(self.lastUpdate);
