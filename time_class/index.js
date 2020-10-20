@@ -124,7 +124,7 @@ const Timer = class {
 		if (!this._id) throw new Error('Timer is being deleted.');
     if (callback instanceof Promise) return this.launchTimerPromise(callback, arg);
     if (callback && {}.toString.call(callback) !== '[object Function]')
-			throw new Error('The passed callback is not a function.');
+			throw new TypeError('The passed callback is not a function.');
 		_callback.set(this, callback);
 		_arg.set(this, arg);
     aborted.set(this, false);
@@ -152,7 +152,7 @@ const Timer = class {
 
   launchTimerPromise(promise, arg) {
 		if (this.inProgress) throw new Error('Timer already launched.');
-		if (!promise instanceof Promise) throw new Error('`First argument` must be a Promise or a Function.');
+		if (!promise instanceof Promise) throw new TypeError('`First argument` must be a Promise or a Function.');
 		const self = this;
 		const timerPromise = new Promise((_, reject) =>  self.launchTimer(reject, arg));
 		return Promise.race([promise, timerPromise]);
@@ -189,8 +189,8 @@ function saveTimer(timer) {
 }
 
 function validateId(id) { 
-	if (typeof id !== 'string' && typeof id !== 'number') throw new Error('`_id` must be a String or a Number.');
-	if (!id) throw new Error('`_id` must not be an empty String or equal to 0.');
+	if (typeof id !== 'string' && typeof id !== 'number') throw new TypeError('`_id` must be a String or a Number.');
+	if (!id) throw new TypeError('`_id` must not be an empty String or equal to 0.');
 }
 
 function getTimerById(id, options = {}) {
