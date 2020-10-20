@@ -26,5 +26,10 @@
   },
   "devDependencies": {
     "tap": "^14.10.8"
+  },
+  "tap": {
+    "nyc-arg": [
+      "--exclude=**/unit_tests"
+    ]
   }
 }
