@@ -1,4 +1,3 @@
-// const sleep = require('../helpers/sleep');
 const tap = require('tap');
 const { wait, SECOND } = require('../wait');
 const Timer = require('../../index');
