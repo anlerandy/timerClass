@@ -152,7 +152,7 @@ const Timer = class {
 
   launchTimerPromise(promise, arg) {
 		if (this.inProgress) throw new Error('Timer already launched.');
-		if (!promise instanceof Promise) throw new TypeError('`First argument` must be a Promise or a Function.');
+		if (!(promise instanceof Promise)) throw new TypeError('`First argument` must be a Promise.');
 		const self = this;
 		const timerPromise = new Promise((_, reject) =>  self.launchTimer(reject, arg));
 		return Promise.race([promise, timerPromise]);
