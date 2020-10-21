@@ -1,5 +1,5 @@
 const tap = require('tap');
-const { wait, waitFail, SECOND } = require('../wait');
+const { SECOND } = require('../wait');
 const Timer = require('../../index');
 
 tap.test('getId tests', async t => {
@@ -43,7 +43,7 @@ tap.test('getId tests', async t => {
 
 	t.test('Create a new timer with existing ID (unforced)', async t => {
 		try {
-			const timer = new Timer(SECOND, { id: 'timer1' });
+			new Timer(SECOND, { id: 'timer1' });
 			t.fail('Nothing went wrong...?');
 		} catch (e) {
 			const msg = e.message || e;
