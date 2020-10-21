@@ -25,11 +25,11 @@ const Timer = class {
 		inProgress.set(this, false);
 		_destroy.set(this, destroy)
 		this.timer = (timer || 2 * MINUTE) + MARGIN;
-
 		try { 
 			id = getId(id) 
 		} catch (e) {
 			if (!forceCreate) throw e;
+			id = undefined;
 		}
 		if (!id && forceCreate) id = getId();
 		_id.set(this, id); 
