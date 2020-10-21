@@ -19,25 +19,30 @@ const Timer = class {
   constructor(timer, options = {}) {
 		const { forceCreate, save = true, destroy = true, verbose = 0 } = options;
 		let { id } = options;
-		lastUpdate.set(this, new Date());
-		createdAt.set(this, new Date());
-    aborted.set(this, false);
-		inProgress.set(this, false);
-		_destroy.set(this, destroy)
-		this.timer = (timer || 2 * MINUTE) + MARGIN;
-		try { 
+
+		try {
 			id = getId(id) 
 		} catch (e) {
 			if (!forceCreate) throw e;
 			id = undefined;
 		}
 		if (!id && forceCreate) id = getId();
-		_id.set(this, id); 
 
+		_id.set(this, id); 
 		if (id)  {
 			if (save) saveTimer(this);
 		}
-		else throw new Error('Timer already exist. To retrieve the existing one, please use `getById` Method.');
+		else {
+			_id.delete(this);
+			throw new Error('Timer already exist. To retrieve the existing one, please use `getById` Method.');
+		}
+
+		lastUpdate.set(this, new Date());
+		createdAt.set(this, new Date());
+    aborted.set(this, false);
+		inProgress.set(this, false);
+		_destroy.set(this, destroy)
+		this.timer = (timer || 2 * MINUTE) + MARGIN;
 		Object.freeze(this);
   }
 
