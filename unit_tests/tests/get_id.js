@@ -41,17 +41,6 @@ tap.test('getId tests', async t => {
 		t.end();
 	});
 
-	t.test('Create a new timer with existing ID (unforced)', async t => {
-		try {
-			new Timer(SECOND, { id: 'timer1' });
-			t.fail('Nothing went wrong...?');
-		} catch (e) {
-			const msg = e.message || e;
-			t.equal(msg, 'Timer already exist. To retrieve the existing one, please use `getById` Method.');
-		}
-		t.end();
-	});
-
 	t.test('Create a new timer with existing ID (forced)', async t => {
 		const timer = new Timer(SECOND, { id: 'timer1', forceCreate: true });
 		const id = timer?._id;
@@ -60,9 +49,17 @@ tap.test('getId tests', async t => {
 		t.end();
 	});
 
+	t.test('Create a new timer with invalid ID (forced)', async t => {
+		const timer = new Timer(SECOND, { id: true, forceCreate: true });
+		const id = timer?._id;
+		if (!id) t.fail('It was not created?!');
+		else t.notEqual(id, true);
+		t.end();
+	});
+
 	t.test('Use getById without passing id', async t => {
 		try {
-			const timer = Timer.getById();
+			Timer.getById();
 			t.fail('Nothing went wrong...?');
 		} catch (e) {
 			const msg = e.message || e;

@@ -4,7 +4,7 @@ const Timer = require('../../index');
 
 tap.test('Errors feedBack tests', t => {
 
-	t.jobs = 5;
+	t.jobs = 6;
 
 	t.test('Callback is nor a Function nor a Promise', t => {
 		const timer = new Timer(SECOND);
@@ -69,6 +69,17 @@ tap.test('Errors feedBack tests', t => {
 			}
 		} catch (e) {
 			t.fail('destroy() failed. Might not working properly.');	
+		}
+		t.end();
+	});
+
+	t.test('Create a new timer with existing ID (unforced)', async t => {
+		try {
+			new Timer(SECOND, { id: 1 });
+			t.fail('Nothing went wrong...?');
+		} catch (e) {
+			const msg = e.message || e;
+			t.equal(msg, 'Timer already exist. To retrieve the existing one, please use `getById` Method.');
 		}
 		t.end();
 	});

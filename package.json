@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "clear && tap ./unit_tests/index.js",
-    "nodetest": "clear && node ./unit_tests/index.js"
+    "nodetest": "clear && node --max_old_space_size=50 ./unit_tests/index.js"
   },
   "repository": {
     "type": "git",
