@@ -4,7 +4,7 @@
   "description": "TimeOut manager for sensible process.",
   "main": "index.js",
   "scripts": {
-    "test": "clear && tap ./unit_tests/index.js",
+    "test": "clear && tap --coverage-report=html ./unit_tests/index.js",
     "nodetest": "clear && node --max_old_space_size=50 ./unit_tests/index.js"
   },
   "repository": {
