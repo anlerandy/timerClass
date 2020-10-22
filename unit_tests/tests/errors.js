@@ -18,10 +18,10 @@ tap.test('Errors feedBack tests', t => {
 		t.end();
 	});
 
-	t.test('Passed argument is not a Promise', t => {
+	t.test('Passed argument is not a Promise', async t => {
 		const timer = new Timer(SECOND);
 		try {
-			timer.launchTimerPromise({});
+			await timer.launchTimerPromise({});
 			t.fail('Should not work...');
 		} catch (e) {
 			const msg = e.message || e;

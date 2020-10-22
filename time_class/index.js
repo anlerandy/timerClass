@@ -83,15 +83,8 @@ const Timer = class {
 		lastUpdate.delete(this);
 		inProgress.delete(this);
 		_timeId.delete(this);
-		const isDestroyed = _destroy.get(this);
-		const isAborted = aborted.get(this);
 		aborted.delete(this);
 		_destroy.delete(this);
-		if (isDestroyed && isAborted) {
-			const callback = _callback.get(this);
-			const arg = _arg.get(this);
-			if (callback) callback(arg);
-		}
 		_callback.delete(this);
 		_arg.delete(this);
 		const timers = TIMERS.get(Timer);
@@ -116,6 +109,9 @@ const Timer = class {
   abort() {
 		if (!this._id) return;
     aborted.set(this, true);
+		const callback = _callback.get(this);
+		const arg = _arg.get(this);
+		if (callback) callback(arg);
     this.done();
   }
 
@@ -155,12 +151,12 @@ const Timer = class {
 		}
   }
 
-  launchTimerPromise(promise, arg) {
+  async launchTimerPromise(promise, arg) {
 		if (this.inProgress) throw new Error('Timer already launched.');
 		if (!(promise instanceof Promise)) throw new TypeError('`First argument` must be a Promise.');
 		const self = this;
 		const timerPromise = new Promise((_, reject) =>  self.launchTimer(reject, arg));
-		return Promise.race([promise, timerPromise]);
+		return await Promise.race([promise, timerPromise]);
   }
 };
 
