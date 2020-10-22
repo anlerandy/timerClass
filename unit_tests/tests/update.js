@@ -1,5 +1,5 @@
 const tap = require('tap');
-const { wait, SECOND } = require('../wait');
+const { wait, SECOND } = require('../helpers/wait');
 const Timer = require('../../index');
 
 tap.test('Update tests', async t => {

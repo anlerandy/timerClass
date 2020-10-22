@@ -1,4 +1,4 @@
-const sleep = require('./helpers/sleep');
+const sleep = require('./sleep');
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;

@@ -1,5 +1,5 @@
 const tap = require('tap');
-const { wait, waitFail, SECOND } = require('../wait');
+const { wait, waitFail, SECOND } = require('../helpers/wait');
 const Timer = require('../../index');
 
 tap.test('Promise tests', async t => {
