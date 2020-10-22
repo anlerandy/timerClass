@@ -1,6 +1,6 @@
 const tap = require('tap');
 
-tap.jobs = 4;
+tap.jobs = 5;
 
 // id basic tests
 require('./tests/get_id');
@@ -13,3 +13,9 @@ require('./tests/update');
 
 // Errors basic tests
 require('./tests/errors');
+
+// Getters basic tests
+require('./tests/getters');
+
+// Leaks basic tests
+// require('./tests/memory');
