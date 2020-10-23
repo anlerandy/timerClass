@@ -1,10 +1,10 @@
 const tap = require('tap');
-const { SECOND } = require('../helpers/wait');
+const { SECOND, wait } = require('../helpers/wait');
 const Timer = require('../../index');
 
 tap.test('Errors feedBack tests', t => {
 
-	t.jobs = 7;
+	t.jobs = 9;
 
 	t.test('Callback is nor a Function nor a Promise', t => {
 		const timer = new Timer(SECOND);
@@ -35,6 +35,21 @@ tap.test('Errors feedBack tests', t => {
 		timer.launchTimer();
 		try {
 			timer.launchTimer();
+			t.fail('Should not work!');
+		} catch (e) {
+			const msg = e.message || e;
+			t.equal(msg, 'Timer already launched.');
+		}
+		t.end();
+	});
+
+	t.test('Already Launch (Promise)', async t => {
+		const timer = new Timer(SECOND);
+		const promise = wait(undefined, timer);
+		try {
+			const p1 = timer.launchTimerPromise(promise);
+			const p2 = timer.launchTimerPromise(promise);
+			await Promise.all([p1, p2]);
 			t.fail('Should not work!');
 		} catch (e) {
 			const msg = e.message || e;
