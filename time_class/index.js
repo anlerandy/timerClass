@@ -135,7 +135,7 @@ const Timer = class {
   }
 
   _tick(self) {
-		if (!self instanceof Timer) throw new Error('Tick is being call without instance of Timer.');
+		if (!(self instanceof Timer)) throw new Error('Tick is being call without instance of Timer.');
 		if (self._timeId) clearTimeout(self._timeId);
     verifyTime(self);
 		const callback = _callback.get(self);
@@ -203,7 +203,26 @@ function getTimerById(id, options = {}) {
 	return timer;
 }
 
+function getAll() {
+	return Object.values(TIMERS.get(Timer) || {});
+}
+
+function destroyAll(force = false) {
+	const timers = getAll() || [];
+	timers.map(timer => {
+		const { inProgress, _id } = timer;
+		if (force && inProgress && _id) timer.abort();
+		try {
+			timer.destroy();
+		} catch (_) {}
+	});
+}
+
 Timer.getById = getTimerById;
+
+Timer.getAll = getAll;
+
+Timer.destroyAll = destroyAll;
 
 Object.freeze(Timer);
 
