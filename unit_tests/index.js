@@ -20,5 +20,8 @@ require('./tests/getters');
 // Save & Destroy basic tests
 require('./tests/save_destroy');
 
+// Advanced tests
+require('./tests/advanced');
+
 // Leaks basic tests
 // require('./tests/memory');
