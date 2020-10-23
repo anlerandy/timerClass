@@ -9,7 +9,9 @@ tap.test('Getters test', t => {
 		const timer = new Timer();
 		const now = new Date();
 		const createdAt = timer.createdAt;
-		if (now.valueOf() === createdAt.valueOf()) t.pass();
+		const nowV = now.valueOf();
+		const createV = createdAt.valueOf();
+		if (nowV - 10 <= createV && createV <= nowV + 10) t.pass();
 		else t.fail();
 		t.end();
 	});
@@ -19,7 +21,9 @@ tap.test('Getters test', t => {
 		timer.launchTimer();
 		const now = new Date();
 		const startedAt = timer.startedAt;
-		if (now.valueOf() === startedAt.valueOf()) t.pass();
+		const nowV = now.valueOf();
+		const startV = startedAt.valueOf();
+		if (nowV - 10 <= startV && startV <= nowV + 10) t.pass();
 		else t.fail();
 		t.end();
 	});
