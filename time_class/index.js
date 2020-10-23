@@ -124,8 +124,8 @@ const Timer = class {
 		if (this.inProgress) throw new Error('Timer already launched.');
 		if (!this._id) throw new Error('Timer is being deleted.');
     if (callback instanceof Promise) return this.launchTimerPromise(callback, arg);
-    if (callback && {}.toString.call(callback) !== '[object Function]')
-			throw new TypeError('The passed callback is not a function.');
+    if (!callback || {}.toString.call(callback) !== '[object Function]')
+			throw new TypeError(callback ? 'The passed callback is not a function.' : 'Callback is Required.');
 		_callback.set(this, callback);
 		_arg.set(this, arg);
     aborted.set(this, false);
@@ -138,9 +138,6 @@ const Timer = class {
 		if (!(self instanceof Timer)) throw new Error('Tick is being call without instance of Timer.');
 		if (self._timeId) clearTimeout(self._timeId);
     verifyTime(self);
-		const callback = _callback.get(self);
-		const arg = _arg.get(self);
-		if (self.isAborted) return callback ? callback(arg) : arg;
     if (self.inProgress && self._id) {
 			const now = new Date().valueOf();
 			const limit = new Date(self.lastUpdate);
