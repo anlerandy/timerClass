@@ -15,10 +15,10 @@ const _array = [
 const _wrongArray = [ ..._array ];
 _wrongArray[0] = null;
 
-const wait = (array = _array, timer) => array.reduce(async (acc, timestamp) => {
+const wait = (array = _array, timer, ...logs) => array.reduce(async (acc, timestamp) => {
 	const res = await acc;
 	await sleep(timestamp);
-	if (timer) timer.update();
+	if (timer) timer.update(...logs);
 	return [ ...res, timestamp ];
 }, []);
 

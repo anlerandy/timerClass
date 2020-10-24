@@ -4,7 +4,7 @@ const Timer = require('../../index');
 
 tap.test('Errors feedBack tests', t => {
 
-	t.jobs = 10;
+	t.jobs = 11;
 
 	t.test('Callback is nor a Function nor a Promise', t => {
 		const timer = new Timer(SECOND);
@@ -118,6 +118,17 @@ tap.test('Errors feedBack tests', t => {
 		} catch (e) {
 			const msg = e.message || e;
 			t.equal(msg, '`_id` must be a String or a Number.');
+		}
+		t.end();
+	});
+
+	t.test('Create a new timer with invalid logger', async t => {
+		try {
+			new Timer(SECOND, { log: {} });
+			t.fail('Nothing went wrong...?');
+		} catch (e) {
+			const msg = e.message || e;
+			t.equal(msg, 'The passed log is not a function.');
 		}
 		t.end();
 	});

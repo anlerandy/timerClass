@@ -20,6 +20,9 @@ require('./tests/getters');
 // Save & Destroy basic tests
 require('./tests/save_destroy');
 
+// Verbose basic tests
+require('./tests/verbose');
+
 // Advanced tests
 require('./tests/advanced');
 
