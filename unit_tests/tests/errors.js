@@ -44,9 +44,9 @@ tap.test('Errors feedBack tests', t => {
 
 	t.test('Already Launch', t => {
 		const timer = new Timer(SECOND);
-		timer.launchTimer(console.log);
+		timer.launchTimer(() => {});
 		try {
-			timer.launchTimer(console.log);
+			timer.launchTimer(() => {});
 			t.fail('Should not work!');
 		} catch (e) {
 			const msg = e.message || e;
@@ -72,7 +72,7 @@ tap.test('Errors feedBack tests', t => {
 
 	t.test('Destroy running timer', t => {
 		const timer = new Timer(SECOND);
-		timer.launchTimer(console.log);
+		timer.launchTimer(() => {});
 		try {
 			timer.destroy();
 			t.fail('Should not work!');

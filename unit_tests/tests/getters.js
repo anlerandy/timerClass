@@ -18,7 +18,7 @@ tap.test('Getters test', t => {
 	
 	t.test('Get startedAt', t => {
 		const timer = new Timer(SECOND);
-		timer.launchTimer(console.log);
+		timer.launchTimer(() => {});
 		const now = new Date();
 		const startedAt = timer.startedAt;
 		const nowV = now.valueOf();
