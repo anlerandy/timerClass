@@ -43,6 +43,22 @@ tap.test('Advanced tests', t => {
 		else t.fail(timers ? 'We have timers in sotre now...?!' : 'We should return an Array.');
 		t.end()
 	});
+	
+	t.test('Destroy when empty storage', t => {
+		const timers = Timer.getAll();
+		if (timers?.length) t.fail('We have timers in storage.');
+		else {
+			const timer = new Timer(0, { save: false, destroy: false });
+			try {
+				timer.destroy();
+				t.pass('Destroy did not trigger any errors.');
+			} catch (e) {
+				const msg = e.message || e;
+				t.fail('Destroy triggered an error.', msg);
+			}
+		}
+		t.end()
+	});
 
 	t.end();
 });
