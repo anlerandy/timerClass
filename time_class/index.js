@@ -17,6 +17,7 @@ const TIMERS = new WeakMap();
 
 const Timer = class {
   constructor(timer, options = {}) {
+		if (!TIMERS.get(Timer)) TIMERS.set(Timer, {});
 		const { forceCreate, save = true, destroy = true, verbose = 0 } = options;
 		let { id } = options;
 
@@ -88,7 +89,7 @@ const Timer = class {
 		_callback.delete(this);
 		_arg.delete(this);
 		const timers = TIMERS.get(Timer);
-		if (timers) {
+		if (timers[this._id]) {
 			const { [this._id]: timer, ...others } = timers;
 			TIMERS.set(Timer, others);
 		}
@@ -170,18 +171,16 @@ function verifyTime(self) {
 function getId(id){
 	if (id) validateId(id);
 	const timers = TIMERS.get(Timer);
-	if (!timers) return id || 1;
-	const ids = Object.keys(timers);
 	if (id) 
-		if (!ids.includes(`${id}`)) return id
+		if (!timers[id]) return id
 		else return;
 	id = 1;
-	while (ids.includes(`${id}`)) ++id;
+	while (timers[id]) ++id;
 	return id;
 }
 
 function saveTimer(timer) {
-	const timers = TIMERS.get(Timer) || {};
+	const timers = TIMERS.get(Timer);
 	TIMERS.set(Timer, { ...timers, [timer._id]: timer });
 }
 
@@ -193,18 +192,18 @@ function validateId(id) {
 function getTimerById(id, options = {}) {
 	const { createOne = true, time } = options;
 	validateId(id);
-	const timers = TIMERS.get(Timer) || {};
+	const timers = TIMERS.get(Timer);
 	const timer = timers[id];
 	if (!timer && createOne) return new Timer(time, { ...options, id });
 	return timer;
 }
 
 function getAll() {
-	return Object.values(TIMERS.get(Timer) || {});
+	return Object.values(TIMERS.get(Timer));
 }
 
 function destroyAll(force = false) {
-	const timers = getAll() || [];
+	const timers = getAll();
 	timers.map(timer => {
 		const { inProgress, _id } = timer;
 		if (force && inProgress && _id) timer.abort();
