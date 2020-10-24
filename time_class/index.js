@@ -143,8 +143,7 @@ const Timer = class {
 			const limit = new Date(self.lastUpdate);
 			limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
 			let nextTick = limit.valueOf() - now;
-      if (nextTick <= 10) self._tick(self);
-      else _timeId.set(this, setTimeout(self._tick, nextTick, self));
+      _timeId.set(this, setTimeout(self._tick, nextTick, self));
 		}
   }
 
