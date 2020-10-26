@@ -75,10 +75,10 @@ tap.test('Verbose tests', t => {
 	const testName6 = 'Custom Logger';
 	t.test(testName6, async t => {
 		try {
-			const wrongLogger = (...args) => {
-				console.log(args.map(arg => `${arg}`.toUpperCase() ));
+			const log = (...args) => {
+				console.log(...args.map(arg => `${arg}`.toUpperCase() ));
 			}
-			const timer = new Timer(SECOND, { log: wrongLogger });
+			const timer = new Timer(SECOND, { log });
 			const promise = timer.launchTimer(wait(undefined, timer));
 			timer.abort(testName6, ...logs);
 			await promise;

@@ -1,3 +1,6 @@
+const initLogger = require('./helpers/log');
+const validateId = require('./helpers/id');
+
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
 // The margin is a timestamp preventing rejection due to initialisation/launch time.
@@ -46,7 +49,7 @@ const Timer = class {
     aborted.set(this, false);
 		inProgress.set(this, false);
 		_destroy.set(this, destroy);
-		_log.set(this, initLogger(log));
+		_log.set(this, initLogger(log, verbose, this));
 		this.timer = (timer || 2 * MINUTE) + MARGIN;
 		Object.freeze(this);
   }
@@ -109,7 +112,8 @@ const Timer = class {
 			clearTimeout(this._timeId);
 			_timeId.set(this, undefined);
 		}
-		if (log?.length) _log.get(this)?.(...log);
+		const logger = _log.get(this)?.done;
+		if (logger) logger(...log);
 		if (_destroy.get(this)) this.destroy();
   }
 
@@ -118,7 +122,8 @@ const Timer = class {
     aborted.set(this, true);
 		const callback = _callback.get(this);
 		const arg = _arg.get(this);
-		if (log?.length) _log.get(this)?.(...log);
+		const logger = _log.get(this)?.abort;
+		if (logger) logger(...log);
 		callback(arg);
 		this.done();
   }
@@ -126,7 +131,8 @@ const Timer = class {
   update(...log) {
 		if (!this._id) return;
     lastUpdate.set(this, new Date());
-		if (log?.length) _log.get(this)?.(...log);
+		const logger = _log.get(this)?.update;
+		if (logger) logger(...log);
   }
 
   launchTimer(callback, arg = 'TimeOut', ...log) {
@@ -141,7 +147,8 @@ const Timer = class {
     inProgress.set(this, true);
     startedAt.set(this, new Date());
 		_timeId.set(this, setTimeout(this._tick, this.timer, this));
-		if (log?.length) _log.get(this)?.(...log);
+		const logger = _log.get(this)?.launch;
+		if (logger) logger(...log);
   }
 
   _tick(self) {
@@ -161,8 +168,7 @@ const Timer = class {
 		if (this.inProgress) throw new Error('Timer already launched.');
 		if (!(promise instanceof Promise)) throw new TypeError('`First argument` must be a Promise.');
 		const self = this;
-		const timerPromise = new Promise((_, reject) =>  self.launchTimer(reject, arg));
-		if (log?.length) _log.get(this)?.(...log);
+		const timerPromise = new Promise((_, reject) =>  self.launchTimer(reject, arg, ...log));
 		return await Promise.race([promise, timerPromise]);
   }
 };
@@ -194,11 +200,6 @@ function saveTimer(timer) {
 	TIMERS.set(Timer, { ...timers, [timer._id]: timer });
 }
 
-function validateId(id) { 
-	if (typeof id !== 'string' && typeof id !== 'number') throw new TypeError('`_id` must be a String or a Number.');
-	if (!id) throw new TypeError('`_id` must not be an empty String or equal to 0.');
-}
-
 function getTimerById(id, options = {}) {
 	const { createOne = true, time } = options;
 	validateId(id);
@@ -221,16 +222,6 @@ function destroyAll(force = false) {
 			timer.destroy();
 		} catch (_) {}
 	});
-}
-
-function initLogger(log, level) {
-		return function (...args) {
-			try {
-				log(...args);
-			} catch (e) {
-				console.error('TIMER: Your logger is not working properly.', e);
-			}
-		}
 }
 
 Timer.getById = getTimerById;
