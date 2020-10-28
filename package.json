@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "clear && tap --coverage-report=html ./unit_tests/index.js",
-    "nodetest": "clear && node --max_old_space_size=50 ./unit_tests/index.js"
+    "nodetest": "clear && node --max_old_space_size=6 ./unit_tests/index.js",
+    "memtest": "clear && node --max_old_space_size=6 ./unit_tests/tests/memory.js"
   },
   "repository": {
     "type": "git",
