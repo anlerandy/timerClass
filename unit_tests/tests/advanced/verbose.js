@@ -3,7 +3,7 @@ const sleep = require('../../helpers/sleep');
 const { SECOND, wait } = require('../../helpers/wait');
 
 function tests(t) {
-	t.jobs = 3;
+	t.jobs = 4;
 
 	t.test('Verbose level 10', async t => {
 		const timer = new Timer(SECOND, { id: 'level13', verbose: 13 });
@@ -26,6 +26,7 @@ function tests(t) {
 			const promise = timer.launchTimer(wait(undefined, timer, 'Launching timer'));
 			timer.update('An update test');
 			timer._log("Date the log.");
+			timer._log();
 			timer.abort();
 			await promise;
 			t.fail();
@@ -63,7 +64,6 @@ function tests(t) {
 				timer._log("After a destroy log.");
 				t.fail();
 			} catch (e) {
-				console.log({msg: e.message || e})
 				t.equal(e.message, 'The timer is being destroyed. No log possible.');
 			}
 		}
