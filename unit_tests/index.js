@@ -17,11 +17,11 @@ require('./tests/errors');
 // Getters basic tests
 require('./tests/getters');
 
-// Save & Destroy basic tests
-require('./tests/save_destroy');
-
 // Verbose basic tests
 require('./tests/verbose');
+
+// Save & Destroy basic tests
+require('./tests/save_destroy');
 
 // Advanced tests
 require('./tests/advanced');

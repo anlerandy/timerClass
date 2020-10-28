@@ -17,15 +17,12 @@ function formatDate(date = new Date(), hour = true) {
 	const month = date.getMonth() + 1;
 	const year = date.getFullYear();
 	const dateString = `${day}/${month}/${year}`;
-	if (hour) {
-		const hours = formatHour(date);
-		return `${dateString} ${hours}`;
-	}
-	return dateString;
+	const hours = formatHour(date);
+	return `${dateString} ${hours}`;
 }
 
 function getVerbose({args = [], log, level = 0, timer: { _id, lastUpdate }}) {
-	const msg = args?.length ? args : [DefaultV[log]];
+	const msg = args?.length ? args : [DefaultV[log] || ''];
 	const array = [...msg];
 	const addLvl = parseInt(level / 10);
 	if (addLvl >= 1) array.push(`(_id: ${_id})` );
@@ -38,55 +35,56 @@ function getVerbose({args = [], log, level = 0, timer: { _id, lastUpdate }}) {
 	return array;
 }
 
-function initLogger(log, level, timer) {
+function initLogger(logFn, level, timer) {
 		return {
-			update: updateLog(log, level, timer),
-			done: doneLog(log, level, timer),
-			abort: abortLog(log, level, timer),
-			launch: launchLog(log, level, timer),
-			log: defaultLog(log)
+			update: updateLog(logFn, level, timer),
+			done: doneLog(logFn, level, timer),
+			abort: abortLog(logFn, level, timer),
+			launch: launchLog(logFn, level, timer),
+			log: defaultLog(logFn, level, timer)
 		}; 
 }
 
-function defaultLog(log) {
+function defaultLog(logFn, level, timer) {
 	return function (...args) {
 		try {
-			log(...args);
+			if (timer) args = getVerbose({ args, level, timer });
+			logFn(...args);
 		} catch (e) {
 			console.error('TIMER: Your logger is not working properly.', e);
 		}
 	}
 }
 
-function updateLog(log, level, timer) {
+function updateLog(logFn, level, timer) {
 	return function (...args) {
 		if (!args.length && (level % 10) < 3) return;
 		args = getVerbose({ args, log: 'UPDATE', level, timer });
-		defaultLog(log)(...args);
+		defaultLog(logFn)(...args);
 	}
 }
 
-function doneLog(log, level, timer) {
+function doneLog(logFn, level, timer) {
 	return function (...args) {
 		if (!args.length && (level % 10) < 2) return;
 		args = getVerbose({ args, log: 'DONE', level, timer });
-		defaultLog(log)(...args);
+		defaultLog(logFn)(...args);
 	}
 }
 
-function abortLog(log, level, timer) {
+function abortLog(logFn, level, timer) {
 	return function (...args) {
 		if (!args.length && (level % 10) < 2) return;
 		args = getVerbose({ args, log: 'ABORT', level, timer });
-		defaultLog(log)(...args);
+		defaultLog(logFn)(...args);
 	}
 }
 
-function launchLog(log, level, timer) {
+function launchLog(logFn, level, timer) {
 	return function (...args) {
 		if (!args.length && (level % 10) < 1) return;
 		args = getVerbose({ args, log: 'LAUNCH', level, timer });
-		defaultLog(log)(...args);
+		defaultLog(logFn)(...args);
 	}
 }
 

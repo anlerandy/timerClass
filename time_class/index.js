@@ -158,7 +158,12 @@ const Timer = class {
 			let nextTick = limit.valueOf() - now;
       _timeId.set(this, setTimeout(self._tick, nextTick, self));
 		}
-  }
+	}
+	
+	_log(...args) {
+		if (!this._id) throw new Error('The timer is being destroyed. No log possible.');
+		_log.get(this).log(...args);
+	}
 
   async launchTimerPromise(promise, arg, ...log) {
 		if (this.inProgress) throw new Error('Timer already launched.');
