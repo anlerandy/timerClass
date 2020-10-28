@@ -112,8 +112,7 @@ const Timer = class {
 			clearTimeout(this._timeId);
 			_timeId.set(this, undefined);
 		}
-		const logger = _log.get(this)?.done;
-		if (logger) logger(...log);
+		_log.get(this).done(...log);
 		if (_destroy.get(this)) this.destroy();
   }
 
@@ -122,8 +121,7 @@ const Timer = class {
     aborted.set(this, true);
 		const callback = _callback.get(this);
 		const arg = _arg.get(this);
-		const logger = _log.get(this)?.abort;
-		if (logger) logger(...log);
+		_log.get(this).abort(...log);
 		callback(arg);
 		this.done();
   }
@@ -131,8 +129,7 @@ const Timer = class {
   update(...log) {
 		if (!this._id) return;
     lastUpdate.set(this, new Date());
-		const logger = _log.get(this)?.update;
-		if (logger) logger(...log);
+		_log.get(this).update(...log);
   }
 
   launchTimer(callback, arg = 'TimeOut', ...log) {
@@ -147,8 +144,7 @@ const Timer = class {
     inProgress.set(this, true);
     startedAt.set(this, new Date());
 		_timeId.set(this, setTimeout(this._tick, this.timer, this));
-		const logger = _log.get(this)?.launch;
-		if (logger) logger(...log);
+		_log.get(this).launch(...log);
   }
 
   _tick(self) {
