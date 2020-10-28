@@ -1,1 +1,1 @@
-module.exports = require('./time_class');
+module.exports = require('./lib');

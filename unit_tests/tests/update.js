@@ -1,6 +1,7 @@
 const tap = require('tap');
 const { wait, SECOND } = require('../helpers/wait');
-const Timer = require('../../index');
+const isProd = process.env.ISPROD === 'true';
+const Timer = require(isProd ? '../../time_class' : '../../index');
 
 tap.test('Update tests', async t => {
 	t.jobs = 2;

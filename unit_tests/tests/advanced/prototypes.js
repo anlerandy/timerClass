@@ -1,5 +1,6 @@
-const Timer = require('../../../index');
 const sleep = require('../../helpers/sleep');
+const isProd = process.env.ISPROD === 'true';
+const Timer = require(isProd ? '../../../time_class' : '../../../index');
 const { SECOND, wait } = require('../../helpers/wait');
 
 function tests(t) {

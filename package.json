@@ -4,9 +4,12 @@
   "description": "TimeOut manager for sensible process.",
   "main": "index.js",
   "scripts": {
-    "test": "clear && tap --coverage-report=html ./unit_tests/index.js",
-    "nodetest": "clear && node --max_old_space_size=6 ./unit_tests/index.js",
-    "memtest": "clear && node --max_old_space_size=6 ./unit_tests/tests/memory.js"
+    "test": "clear && ISPROD=true tap --coverage-report=html ./unit_tests/index.js",
+    "buildtest": "npm run build && clear && ISPROD=false tap --coverage-report=html ./unit_tests/index.js",
+    "nodetest": "clear && ISPROD=true node --max_old_space_size=6 ./unit_tests/index.js",
+    "memtest": "clear && ISPROD=true node --max_old_space_size=6 ./unit_tests/tests/memory.js",
+    "buildmemtest": "npm run build && clear && ISPROD=false node --max_old_space_size=6 ./unit_tests/tests/memory.js",
+    "build": "babel time_class -d lib"
   },
   "repository": {
     "type": "git",
@@ -26,7 +29,15 @@
     "registry": "https://npm.pkg.github.com/"
   },
   "devDependencies": {
-    "tap": "^14.10.8"
+    "@babel/cli": "^7.12.1",
+    "@babel/core": "^7.12.3",
+    "@babel/preset-env": "^7.12.1",
+    "@babel/register": "^7.12.1",
+    "babel-loader": "^8.1.0",
+    "babel-preset-stage-0": "^6.24.1",
+    "tap": "^14.10.8",
+    "webpack": "^5.3.0",
+    "webpack-cli": "^4.1.0"
   },
   "tap": {
     "nyc-arg": [

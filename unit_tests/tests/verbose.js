@@ -1,6 +1,7 @@
 const tap = require('tap');
 const { SECOND, wait } = require('../helpers/wait');
-const Timer = require('../../index');
+const isProd = process.env.ISPROD === 'true';
+const Timer = require(isProd ? '../../time_class' : '../../index');
 
 const logs = ['A String', { log:'An object' }, ['An Array']]; 
 

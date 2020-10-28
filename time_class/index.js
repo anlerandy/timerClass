@@ -3,8 +3,7 @@ const validateId = require('./helpers/id');
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
-// The margin is a timestamp preventing rejection due to initialisation/launch time.
-const MARGIN = 100;
+const MARGIN = 100; // The margin is a timestamp preventing rejection due to initialisation/launch time.
 
 const createdAt = new WeakMap();
 const startedAt = new WeakMap();
