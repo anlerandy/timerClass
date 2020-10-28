@@ -24,7 +24,7 @@ const Timer = class {
 		if (!TIMERS.get(Timer)) TIMERS.set(Timer, {});
 		const { forceCreate, save = true, destroy = true, verbose = 0, log = console.log } = options;
 		let { id } = options;
-    if ({}.toString.call(log, verbose) !== '[object Function]')
+    if ({}.toString.call(log) !== '[object Function]')
 			throw new TypeError('The passed log is not a function.');
 
 		try {
@@ -49,7 +49,7 @@ const Timer = class {
     aborted.set(this, false);
 		inProgress.set(this, false);
 		_destroy.set(this, destroy);
-		_log.set(this, initLogger(log, verbose, this));
+		_log.set(this, initLogger(log, parseInt(verbose), this));
 		this.timer = (timer || 2 * MINUTE) + MARGIN;
 		Object.freeze(this);
   }

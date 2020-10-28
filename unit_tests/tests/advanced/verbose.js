@@ -1,5 +1,4 @@
 const Timer = require('../../../index');
-const sleep = require('../../helpers/sleep');
 const { SECOND, wait } = require('../../helpers/wait');
 
 function tests(t) {
