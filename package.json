@@ -6,10 +6,10 @@
   "scripts": {
     "test": "clear && ISPROD=true tap --coverage-report=html ./unit_tests/index.js",
     "buildtest": "npm run build && clear && ISPROD=false tap --coverage-report=html ./unit_tests/index.js",
-    "nodetest": "clear && ISPROD=true node --max_old_space_size=6 ./unit_tests/index.js",
     "memtest": "clear && ISPROD=true node --max_old_space_size=6 ./unit_tests/tests/memory.js",
     "buildmemtest": "npm run build && clear && ISPROD=false node --max_old_space_size=6 ./unit_tests/tests/memory.js",
-    "build": "babel time_class -d lib"
+    "build": "babel time_class -d lib",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -17,7 +17,7 @@
   },
   "keywords": [
     "timeout",
-    "timer"
+    "setTimeout"
   ],
   "author": "Andy L.",
   "license": "ISC",
@@ -43,5 +43,9 @@
     "nyc-arg": [
       "--exclude=**/unit_tests"
     ]
-  }
+  },
+  "files": [
+    "index.js",
+    "lib"
+  ]
 }
