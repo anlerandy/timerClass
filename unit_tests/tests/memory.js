@@ -11,6 +11,9 @@ const getOccurrencesMax = () => {
 	const rssMB = parseInt(rss / MBYTES);
 	const extMB = parseInt(external / MBYTES);
 	const usedMB = parseInt(heapUsed / MBYTES);
+	// for 500
+	// Average with destroy()			-> 37 | 6 | 3 | 5
+	// Average without destroy()	-> 38 | 7 | 3 | 5 (SEGF at 280/500)
 	return `${rssMB} | ${memoryMB} | ${extMB} | ${usedMB}`;
 };
 
@@ -30,7 +33,7 @@ async function test({ i, t }) {
 }
 
 tap.test('Stress test', async t => {
-	const max = 300;
+	const max = 500;
 	console.log('');
 	for (let i = 0; i < max; ++i) {
 		console.log('\033[1A\033[KPromise', `${i + 1}/${max} -`, getOccurrencesMax());
