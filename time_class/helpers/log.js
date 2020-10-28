@@ -12,7 +12,7 @@ function formatHour(date = new Date()) {
 		return `${hours}:${minutes}:${seconds}:${millis}`;
 }
 
-function formatDate(date = new Date(), hour = true) {
+function formatDate(date) {
 	const day = date.getDate();
 	const month = date.getMonth() + 1;
 	const year = date.getFullYear();
@@ -21,7 +21,7 @@ function formatDate(date = new Date(), hour = true) {
 	return `${dateString} ${hours}`;
 }
 
-function getVerbose({args = [], log, level = 0, timer: { _id, lastUpdate }}) {
+function getVerbose({args, log, level, timer: { _id, lastUpdate }}) {
 	const msg = args?.length ? args : [DefaultV[log] || ''];
 	const array = [...msg];
 	const addLvl = parseInt(level / 10);
