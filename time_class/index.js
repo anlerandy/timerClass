@@ -204,7 +204,7 @@ function getTimerById(id, options = {}) {
 	const { createOne = true, time } = options;
 	validateId(id);
 	const timers = TIMERS.get(Timer);
-	const timer = timers[id];
+	const timer = timers?.[id];
 	if (!timer && createOne) return new Timer(time, { ...options, id });
 	return timer;
 }
