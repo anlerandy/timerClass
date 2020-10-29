@@ -1,6 +1,6 @@
 {
   "name": "@anlerandy/timer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "TimeOut manager for sensible process.",
   "main": "index.js",
   "scripts": {
