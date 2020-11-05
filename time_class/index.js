@@ -20,7 +20,6 @@ const _log = new WeakMap();
 
 const Timer = class {
   constructor(timer, options = {}) {
-		if (!TIMERS.get(Timer)) TIMERS.set(Timer, {});
 		const { forceCreate, save = true, destroy = true, verbose = 0, log = console.log } = options;
 		let { id } = options;
     if ({}.toString.call(log) !== '[object Function]')
@@ -223,6 +222,8 @@ function destroyAll(force = false) {
 		} catch (_) {}
 	});
 }
+
+TIMERS.set(Timer, {});
 
 Timer.getById = getTimerById;
 
