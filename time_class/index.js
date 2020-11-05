@@ -8,6 +8,7 @@ const MARGIN = 100; // The margin is a timestamp preventing rejection due to ini
 const createdAt = new WeakMap();
 const startedAt = new WeakMap();
 const aborted = new WeakMap();
+const outed = new WeakMap();
 const lastUpdate = new WeakMap();
 const inProgress = new WeakMap();
 const _destroy = new WeakMap();
@@ -44,7 +45,8 @@ const Timer = class {
 
 		lastUpdate.set(this, new Date());
 		createdAt.set(this, new Date());
-    aborted.set(this, false);
+		aborted.set(this, false);
+		outed.set(this, false);
 		inProgress.set(this, false);
 		_destroy.set(this, destroy);
 		_log.set(this, initLogger(log, parseInt(verbose), this));
@@ -79,7 +81,11 @@ const Timer = class {
   get isAborted() {
     return aborted.get(this);
 	}
-	
+
+	get hasTimeout() {
+		return outed.get(this);
+	}
+
 	destroy() {
 		if (!this._id) return;
 		if (this.inProgress && !this.aborted)
@@ -90,6 +96,7 @@ const Timer = class {
 		inProgress.delete(this);
 		_timeId.delete(this);
 		aborted.delete(this);
+		outed.delete(this);
 		_destroy.delete(this);
 		_callback.delete(this);
 		_arg.delete(this);
@@ -139,6 +146,7 @@ const Timer = class {
 		_callback.set(this, callback);
 		_arg.set(this, arg);
     aborted.set(this, false);
+		outed.set(this, false);
     inProgress.set(this, true);
     startedAt.set(this, new Date());
 		_timeId.set(this, setTimeout(this._tick, this.timer, this));
@@ -179,6 +187,7 @@ function verifyTime(self) {
   const limit = new Date(self.lastUpdate);
   limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
   const limitValue = limit.valueOf();
+  outed.set(self, true);
   if (nowValue >= limitValue) self.abort();
 }
 
