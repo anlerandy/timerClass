@@ -50,7 +50,7 @@ const Timer = class {
 		inProgress.set(this, false);
 		_destroy.set(this, destroy);
 		_log.set(this, initLogger(log, parseInt(verbose), this));
-		this.timer = (timer || 2 * MINUTE) + MARGIN;
+		this.timer = (parseInt(timer) || 2 * MINUTE) + MARGIN;
 		Object.freeze(this);
   }
 
@@ -82,7 +82,7 @@ const Timer = class {
     return aborted.get(this);
 	}
 
-	get hasTimeout() {
+	get isSelfAborted() {
 		return outed.get(this);
 	}
 
@@ -175,8 +175,15 @@ const Timer = class {
 		if (this.inProgress) throw new Error('Timer already launched.');
 		if (!(promise instanceof Promise)) throw new TypeError('`First argument` must be a Promise.');
 		const self = this;
-		const timerPromise = new Promise((_, reject) =>  self.launchTimer(reject, arg, ...log));
-		return await Promise.race([promise, timerPromise]);
+		const timerPromise = new Promise((_, reject) => self.launchTimer(reject, arg, ...log));
+		try {
+			const result = await Promise.race([promise, timerPromise]);
+			this.done();
+			return result;
+		} catch (e) {
+			this.abort();
+			throw e;
+		}
   }
 };
 
@@ -187,8 +194,10 @@ function verifyTime(self) {
   const limit = new Date(self.lastUpdate);
   limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
   const limitValue = limit.valueOf();
-  outed.set(self, true);
-  if (nowValue >= limitValue) self.abort();
+  if (nowValue >= limitValue) {
+		outed.set(self, true);
+		self.abort();
+	}
 }
 
 

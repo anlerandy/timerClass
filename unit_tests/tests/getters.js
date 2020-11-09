@@ -37,7 +37,7 @@ tap.test('Getters test', t => {
 		t.end();
 	});
 	
-	t.test('Get hasTimeout (true)', async t => {
+	t.test('Get isSelfAborted (true)', async t => {
 		const timer = new Timer(SECOND / 2, { destroy: false });
 		const promise = timer.launchTimer(wait(undefined, timer));
 		try {
@@ -45,13 +45,13 @@ tap.test('Getters test', t => {
 			t.fail('It succeed...?!');
 		} catch (e) {
 			const msg = e.message || e;
-			if (timer.hasTimeout) t.equal(msg, 'TimeOut');
-			else t.fail('hasTimeout value should be `true`.');
+			if (timer.isSelfAborted) t.equal(msg, 'TimeOut');
+			else t.fail('isSelfAborted value should be `true`.');
 		}
 		t.end();
 	});
 	
-	t.test('Get hasTimeout (false) & isAborted', async t => {
+	t.test('Get isSelfAborted (false) & isAborted', async t => {
 		const timer = new Timer(SECOND, { destroy: false });
 		const promise = timer.launchTimer(wait(undefined, timer));
 		try {
@@ -60,10 +60,10 @@ tap.test('Getters test', t => {
 			t.fail('It succeed...?!');
 		} catch (e) {
 			const msg = e.message || e;
-			if (!timer.hasTimeout && timer.isAborted) t.equal(msg, 'TimeOut');
+			if (!timer.isSelfAborted && timer.isAborted) t.equal(msg, 'TimeOut');
 			else {
-				const field = timer.hasTimeout ? 'hasTimeout' : 'isAborted';
-				const value = timer.hasTimeout ? 'false' : 'true';
+				const field = timer.isSelfAborted ? 'isSelfAborted' : 'isAborted';
+				const value = timer.isSelfAborted ? 'false' : 'true';
 				t.fail(`${field} value should be \`${value}\`.`);
 			}
 		}
