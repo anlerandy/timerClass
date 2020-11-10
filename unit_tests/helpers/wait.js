@@ -8,18 +8,18 @@ const ONEMHALF = MINUTE + HALF;
 const TWOMHALF = ONEMHALF + MINUTE;
 
 const _array = [
-	SECOND,
-	SECOND
+  SECOND,
+  SECOND
 ];
 
 const _wrongArray = [ ..._array ];
 _wrongArray[0] = null;
 
 const wait = (array = _array, timer, ...logs) => array.reduce(async (acc, timestamp) => {
-	const res = await acc;
-	await sleep(timestamp);
-	if (timer) timer.update(...logs);
-	return [ ...res, timestamp ];
+  const res = await acc;
+  await sleep(timestamp);
+  if (timer) timer.update(...logs);
+  return [ ...res, timestamp ];
 }, []);
 
 const waitFail = () => wait(_wrongArray);

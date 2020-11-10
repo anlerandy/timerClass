@@ -4,7 +4,7 @@ Wrap a task in a timer that will be using a `callback` or its `promise.reject` u
 Can also be used to schedule a task using a `callback` as the runner instead of the termination function.
 
 This timer can be shared accross an app and manualy stopped. It prevents running similar task when using `setTimeout` in a `setInterval` fashion.  
-Most importantly, the class can postponed the timeout if the task ping its wrapper: Timer.
+The class can also postpone the timeout if the task ping its wrapper: Timer.
 
 # Install
 
