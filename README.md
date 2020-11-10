@@ -135,7 +135,7 @@ Default: `false`
 
 # Instance properties
 
-All properties come from getter method. `console.log({ timer })` will only show nothing.  
+All properties come from getter method. `console.log({ timer })` will only show timer timestamp.  
 Spreading is still possible depending on your Node.js version: `const { _id, inProgress } = timer;`
 
 | Property      |   Type    |   Default   | Description                          |
@@ -219,7 +219,7 @@ If `destroy` option was `true` on instanciation, delete the timer.
 
 ## **timer.destroy()**
 
-Destroy the instance. Throw an error if instance is not terminated via `_.done` or `_.abort()`.  
+Destroy the instance. Throw an error if instance is not terminated via `_.done()` or `_.abort()`.  
 Automaticaly called after temination, if `destroy` option was set as `true`.
 
 ## **timer.update()**
@@ -230,7 +230,7 @@ Useful if there is multiple task to be done, and each should be under the same t
 ```js
 async function bigTask(timer) {
   for (i = 0; i < 10; i++) {
-    await task(element);
+    await task();
     timer.update();
   }
 }
@@ -250,7 +250,7 @@ Can be used to terminate a task if the said task verify if timer is aborted.
 async function bigTask(timer) {
   for (i = 0; i < 10; i++) {
     if (timer.isAborted) break;
-    await task(element);
+    await task();
     timer.update();
   }
 }
