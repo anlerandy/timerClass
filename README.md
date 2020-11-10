@@ -1,9 +1,9 @@
 # Timer v1.0.3
 
-Wrap a task in a timer that be stoped using a `callback` or its `promise.reject` upon timeout.  
-Can also be use to schedule a task using `callback` as the runner instead of the stopper.
+Wrap a task in a timer that will be using a `callback` or its `promise.reject` upon its timeout.  
+Can also be used to schedule a task using a `callback` as the runner instead of the termination function.
 
-This timer can be saved accross an app and manualy stopped. Prevent running other similar task when using `setTimeout` in a `setInterval` fashion.  
+This timer can be shared accross an app and manualy stopped. It prevents running similar task when using `setTimeout` in a `setInterval` fashion.  
 Most importantly, the class can postponed the timeout if the task ping its wrapper: Timer.
 
 # Install
@@ -64,20 +64,20 @@ Prevent instanciation to fail due to already use passed `id`. `id` will be gener
 
 Type: `Boolean`  
 Default: `true`  
-Upon termination, due to error included, destroy the instance to facilitate Garbage collecting.  
-Any getters will return `undefined` and methods won't be avalaible anymore.
+Upon termination, because of error included, destroy the instance to facilitate Garbage collecting.  
+Any getters will return `undefined` and methods won't be available anymore.
 
 #### save
 
 Type: `Boolean`  
 Default: `true`  
-Save the instance in the Class. Can be retrieve using its `id` in the whole app using `Timer.getById` method.  
+Save the instance in the Class. Can be retrieve using its `id` using `Timer.getById` method.  
 Unsaved timers won't block new timers to use their `id`.
 
 ## **Timer.getById(id, options?)**
 
-Return timer instance with passed `id`. Return `undefined` if no timer was find.  
-If `createOne` is `true` in the options, create a new timer if not found. Could `thow` same creation related error.
+Return timer associated with `id`. Return `undefined` if no timer was found.  
+If `createOne` is `true` in the options, create a new timer if not found. Could `throw` if timer creation fails.
 
 ```javascript
 function timedTask() {
@@ -89,7 +89,7 @@ function timedTask() {
 ### **id**
 
 Type: `Number | String`  
-The `id` of the timer to find. Or the apply for creation.
+The `id` of the timer to find. Or the one to apply for creation.
 
 ### **options**
 
@@ -100,7 +100,7 @@ Options of `_.getById` are similar of those in `new Timer()` in addition with th
 
 Type: `Boolean`  
 Default: `true`  
-Make the method create a new instance of Timer if not found. If `false`, no other options will be take into account.  
+Make the method create a new instance of Timer if not found. If `false`, no other options will be taken into account.  
 Useful as `false` to see if a similar task is already running.
 
 ```javascript
@@ -136,17 +136,17 @@ Default: `false`
 # Instance properties
 
 All properties come from getter method. `console.log({ timer })` will only show nothing.  
-Spreading is still possible depending on your node.js version: `const { _id, inProgress } = timer;`
+Spreading is still possible depending on your Node.js version: `const { _id, inProgress } = timer;`
 
-| Property      |   Type    |   Default   | Description                                   |
-| ------------- | :-------: | :---------: | --------------------------------------------- |
-| \_id          | `String`  |     N/A     | `id` of the instance                          |
-| createdAt     |  `Date`   |     N/A     | Creation date                                 |
-| startedAt     |  `Date`   | `undefined` | Launching date                                |
-| lastUpdate    |  `Date`   | `undefined` | Last date of the timeout being postponed      |
-| inProgress    | `boolean` |   `false`   | State if the task is running                  |
-| isAborted     | `boolean` |   `false`   | State if the task was aborted                 |
-| isSelfAborted | `boolean` |   `false`   | State if the task was aborted by timer itself |
+| Property      |   Type    |   Default   | Description                          |
+| ------------- | :-------: | :---------: | ------------------------------------ |
+| \_id          | `String`  |     N/A     | `id` of the instance                 |
+| createdAt     |  `Date`   |     N/A     | Creation date                        |
+| startedAt     |  `Date`   | `undefined` | Launch date                          |
+| lastUpdate    |  `Date`   | `undefined` | Last update (i.e. last postpone)     |
+| inProgress    | `boolean` |   `false`   | True if running                      |
+| isAborted     | `boolean` |   `false`   | True if cancelled                    |
+| isSelfAborted | `boolean` |   `false`   | True if the timer cancelled its task |
 
 All properties are `undefined` if the instance is being deleted.
 
@@ -162,7 +162,7 @@ console.log(date);
 
 ## **timer.launchTimer(callback, argument?)**
 
-Run the clock of the timer. Depending on `callback`, returns nothing or a wrapped promise.
+Run the timer. Depending on `callback`, returns nothing or a wrapped promise.
 
 ### **callback**
 
