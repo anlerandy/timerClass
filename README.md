@@ -31,7 +31,7 @@ async function main() {
 }
 ```
 
-# API
+# Class
 
 ## **new Timer(time?, options?)**
 
@@ -74,20 +74,184 @@ Default: `true`
 Save the instance in the Class. Can be retrieve using its `id` in the whole app using `Timer.getById` method.  
 Unsaved timers won't block new timers to use their `id`.
 
-#### verbose
+## **Timer.getById(id, options?)**
 
-Type: `Number`  
-Default: `0`  
-Activate logs for methods.
-1: Logs when `done` & `abort` are called.
-2: 1 plus when `launch*` is called.
-3: 2 plus when `update` is called.
-10: Add timer id before every log.
-20: 10 plus date of the log.
-30: 20 plus timestamp of next timeout.
+Return timer instance with passed `id`. Return `undefined` if no timer was find.  
+If `createOne` is `true` in the options, create a new timer if not found. Could `thow` same creation related error.
 
-#### log
+```javascript
+function timedTask() {
+  const timer = Timer.getById('myTimerId');
+  if (timer) return timer.launchTimer(task());
+}
+```
 
-Type: `Function`  
-Prototype: `logger(...logs)`  
-Default: `console.log`
+### **id**
+
+Type: `Number | String`  
+The `id` of the timer to find. Or the apply for creation.
+
+### **options**
+
+Type: `objects`  
+Options of `_.getById` are similar of those in `new Timer()` in addition with the two following.
+
+#### createOne
+
+Type: `Boolean`  
+Default: `true`  
+Make the method create a new instance of Timer if not found. If `false`, no other options will be take into account.  
+Useful as `false` to see if a similar task is already running.
+
+```javascript
+function isRunning(id) {
+  const timer = Timer.getById(id, { createOne: false });
+  // return timer && timer.inProgress; // es6
+  return !!timer?.inProgress;
+}
+```
+
+#### time
+
+See `time` option in `new Timer()`.
+
+#### Other options
+
+See `options` in `new Timer()`.
+
+## **Timer.getAll()**
+
+Return an array of all saved timer instances.
+
+## **Timer.destroyAll(force?)**
+
+Delete all saved timer instances that are not running.
+
+### **force**
+
+Type: `Boolean`  
+Default: `false`  
+`force` option aborts all running task before deleting them.
+
+# Instance properties
+
+All properties come from getter method. `console.log({ timer })` will only show nothing.  
+Spreading is still possible depending on your node.js version: `const { _id, inProgress } = timer;`
+
+| Property      |   Type    |   Default   | Description                                   |
+| ------------- | :-------: | :---------: | --------------------------------------------- |
+| \_id          | `String`  |     N/A     | `id` of the instance                          |
+| createdAt     |  `Date`   |     N/A     | Creation date                                 |
+| startedAt     |  `Date`   | `undefined` | Launching date                                |
+| lastUpdate    |  `Date`   | `undefined` | Last date of the timeout being postponed      |
+| inProgress    | `boolean` |   `false`   | State if the task is running                  |
+| isAborted     | `boolean` |   `false`   | State if the task was aborted                 |
+| isSelfAborted | `boolean` |   `false`   | State if the task was aborted by timer itself |
+
+All properties are `undefined` if the instance is being deleted.
+
+```js
+const timer = new Timer();
+timer.destroy();
+const date = timer.createdAt;
+console.log(date);
+// output: undefined
+```
+
+# Instance API
+
+## **timer.launchTimer(callback, argument?)**
+
+Run the clock of the timer. Depending on `callback`, returns nothing or a wrapped promise.
+
+### **callback**
+
+Type: `Function | Promise`  
+A `function` that will run when time runs out. Or a `Promise` that will be rejected if time runs out.  
+Passing a `function` involve that the timer should be terminate by user with `_.done()` or `_.abort()`.
+
+```js
+function task(callback) {
+  try {
+    // Do something before running callback
+    callback(data);
+  } catch (error) {
+    callback({ error });
+  }
+}
+
+(function () {
+  const timer = new Timer();
+
+  function callback(data) {
+    if (timer.isAborted) return;
+    else timer.done();
+    // Do what should be done after task();
+  }
+
+  timer.launchTimer(callback);
+  task(callback);
+})();
+```
+
+### **argument**
+
+Type: `Any`  
+Default: `'TimeOut'`  
+Argument will be passed to the callback. In the case of `promise`, the argument will be passed to the promise `reject` method.  
+Only one argument can be passed.
+
+```js
+const myError = new Error('Task ran out of time');
+try {
+  const result = await timer.launchTimer(task(), myError);
+  // runs out of time and trigger promise.reject(myError);
+} catch (error) {
+  console.log(error.message);
+  // output: 'Task ran out of time'
+}
+```
+
+## **timer.done()**
+
+Terminate timer without triggering `callback` or `promise.reject`.  
+If `destroy` option was `true` on instanciation, delete the timer.
+
+## **timer.destroy()**
+
+Destroy the instance. Throw an error if instance is not terminated via `_.done` or `_.abort()`.  
+Automaticaly called after temination, if `destroy` option was set as `true`.
+
+## **timer.update()**
+
+Reset the clock of timer.  
+Useful if there is multiple task to be done, and each should be under the same timer.
+
+```js
+async function bigTask(timer) {
+  for (i = 0; i < 10; i++) {
+    await task(element);
+    timer.update();
+  }
+}
+
+(async function () {
+  await timer.launchTimer(bigTask(timer));
+  timer.done();
+})();
+```
+
+## **timer.abort()**
+
+Run `callback` or `promise.reject`. Then, work as `timer.done()`.
+Can be used to terminate a task if the said task verify if timer is aborted.
+
+```js
+async function bigTask(timer) {
+  for (i = 0; i < 10; i++) {
+    if (timer.isAborted) break;
+    await task(element);
+    timer.update();
+  }
+}
+```
