@@ -1,7 +1,7 @@
 const tap = require('tap');
 const { SECOND, wait } = require('../helpers/wait');
 const isProd = process.env.ISPROD === 'true';
-const Timer = require(isProd ? '../../time_class' : '../../index');
+const Timer = require(isProd ? '../../../time_class' : '../../../index'  );
 
 const KBYTES = 1024;
 const MBYTES = KBYTES * KBYTES;

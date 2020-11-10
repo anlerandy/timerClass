@@ -1,5 +1,5 @@
 const isProd = process.env.ISPROD === 'true';
-const Timer = require(isProd ? '../../../time_class' : '../../../index');
+const Timer = require(isProd ? '../../../../time_class' : '../../../../index');
 
 function tests(t) {
   t.jobs = 1;
