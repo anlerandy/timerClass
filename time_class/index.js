@@ -18,9 +18,10 @@ const _callback = new WeakMap();
 const _arg = new WeakMap();
 const TIMERS = new WeakMap();
 const _log = new WeakMap();
+const _timestamp = new WeakMap();
 
 const Timer = class {
-  constructor(timer, options = {}) {
+  constructor(time, options = {}) {
     const { forceCreate, save = true, destroy = true, verbose = 0, log = console.log } = options;
     let { id } = options;
     if ({}.toString.call(log) !== '[object Function]')
@@ -50,10 +51,18 @@ const Timer = class {
     inProgress.set(this, false);
     _destroy.set(this, destroy);
     _log.set(this, initLogger(log, parseInt(verbose), this));
-    this.timer = (parseInt(timer) || 2 * MINUTE) + MARGIN;
-    Object.freeze(this);
+    this.time = (time || 2 * MINUTE);
   }
-
+  
+  set time(timestamp) {
+    const time = parseInt(timestamp);
+    if (time) _timestamp.set(this, parseInt(timestamp) + MARGIN);
+    return this;
+  }
+  
+  get time() {
+    return _timestamp.get(this);
+  }
   get _id() {
     return _id.get(this);
   }
@@ -94,13 +103,14 @@ const Timer = class {
     startedAt.delete(this);
     lastUpdate.delete(this);
     inProgress.delete(this);
-    _timeId.delete(this);
     aborted.delete(this);
     outed.delete(this);
     _destroy.delete(this);
+    _timeId.delete(this);
     _callback.delete(this);
     _arg.delete(this);
     _log.delete(this);
+    _timestamp.delete(this);
     const timers = TIMERS.get(Timer);
     if (timers[this._id]) {
       const { [this._id]: timer, ...others } = timers;
@@ -149,7 +159,7 @@ const Timer = class {
     outed.set(this, false);
     inProgress.set(this, true);
     startedAt.set(this, new Date());
-    _timeId.set(this, setTimeout(this._tick, this.timer, this));
+    _timeId.set(this, setTimeout(this._tick, this.time, this));
     _log.get(this).launch(...log);
   }
 
@@ -160,7 +170,7 @@ const Timer = class {
     if (self.inProgress && self._id) {
       const now = new Date().valueOf();
       const limit = new Date(self.lastUpdate);
-      limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
+      limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.time);
       let nextTick = limit.valueOf() - now;
       _timeId.set(this, setTimeout(self._tick, nextTick, self));
     }
@@ -185,6 +195,9 @@ const Timer = class {
       throw e;
     }
   }
+  static getById = getTimerById;
+  static getAll = getAll;
+  static destroyAll = destroyAll;
 };
 
 function verifyTime(self) {
@@ -192,7 +205,7 @@ function verifyTime(self) {
   const now = new Date();
   const nowValue = now.valueOf();
   const limit = new Date(self.lastUpdate);
-  limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
+  limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.time);
   const limitValue = limit.valueOf();
   if (nowValue >= limitValue) {
     outed.set(self, true);
@@ -202,11 +215,12 @@ function verifyTime(self) {
 
 
 function getId(id){
-  if (id) validateId(id);
   const timers = TIMERS.get(Timer);
-  if (id) 
+  if (id) {
+    validateId(id);
     if (!timers[id]) return id
     else return;
+  }
   id = 1;
   while (timers[id]) ++id;
   return id;
@@ -242,13 +256,5 @@ function destroyAll(force = false) {
 }
 
 TIMERS.set(Timer, {});
-
-Timer.getById = getTimerById;
-
-Timer.getAll = getAll;
-
-Timer.destroyAll = destroyAll;
-
-Object.freeze(Timer);
 
 module.exports = Timer;

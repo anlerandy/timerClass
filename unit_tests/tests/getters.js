@@ -4,7 +4,7 @@ const isProd = process.env.ISPROD === 'true';
 const Timer = require(isProd ? '../../time_class' : '../../index');
 
 tap.test('Getters test', t => {
-  t.jobs = 5;
+  t.jobs = 6;
   
   t.test('Get CreatedAt', t => {
     const timer = new Timer();
@@ -67,6 +67,14 @@ tap.test('Getters test', t => {
         t.fail(`${field} value should be \`${value}\`.`);
       }
     }
+    t.end();
+  });
+  
+  t.test('Get time', async t => {
+		const timer = new Timer(SECOND);
+		timer.time = 2 * SECOND;
+		timer.time = 'wuoifne';
+		t.equal(timer.time, 2 * SECOND + 100);
     t.end();
   });
 
