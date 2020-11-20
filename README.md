@@ -1,4 +1,4 @@
-# Timer v1.0.3
+# Timer v1.0.4
 
 Wrap a task in a timer in order to stop it upon its timeout.
 Timer will be using a `callback` or its `promise.reject` upon timeout.  
@@ -136,8 +136,11 @@ Default: `false`
 
 # Instance properties
 
-All properties come from getter method. `console.log({ timer })` will only show timer timestamp.  
+All properties come from getter method. `console.log({ timer })` will show nothing.  
 Spreading is still possible depending on your Node.js version: `const { _id, inProgress } = timer;`
+
+Only `time` property can be set (`timer.time = 2000`). Will not be updated if value is not a number.  
+Changing `time` while Timer is running can result in a timeout.
 
 | Property      |   Type    |   Default   | Description                          |
 | ------------- | :-------: | :---------: | ------------------------------------ |
@@ -148,6 +151,7 @@ Spreading is still possible depending on your Node.js version: `const { _id, inP
 | inProgress    | `boolean` |   `false`   | True if running                      |
 | isAborted     | `boolean` |   `false`   | True if cancelled                    |
 | isSelfAborted | `boolean` |   `false`   | True if the timer cancelled its task |
+| time          | `Number`  |  `120100`   | Time to wait before timeout (ms)     |
 
 All properties are `undefined` if the instance is being deleted.
 

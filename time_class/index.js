@@ -55,14 +55,16 @@ const Timer = class {
   }
   
   set time(timestamp) {
+    if (!this._id) return;
     const time = parseInt(timestamp);
     if (time) _timestamp.set(this, parseInt(timestamp) + MARGIN);
-    return this;
+    this._tick(this);
   }
   
   get time() {
     return _timestamp.get(this);
   }
+
   get _id() {
     return _id.get(this);
   }

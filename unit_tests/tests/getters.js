@@ -75,7 +75,10 @@ tap.test('Getters test', t => {
   timer.time = 2 * SECOND;
   timer.time = 'wuoifne';
   t.equal(timer.time, 2 * SECOND + 100);
-    t.end();
+  timer.destroy();
+  timer.time = SECOND;
+  t.equal(timer.time, undefined);
+  t.end();
   });
 
   t.end();
