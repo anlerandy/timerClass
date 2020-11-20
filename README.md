@@ -1,9 +1,10 @@
 # Timer v1.0.3
 
-Wrap a task in a timer that will be using a `callback` or its `promise.reject` upon its timeout.  
+Wrap a task in a timer in order to stop it upon its timeout.
+Timer will be using a `callback` or its `promise.reject` upon timeout.  
 Can also be used to schedule a task using a `callback` as the runner instead of the termination function.
 
-This timer can be shared accross an app and manualy stopped. It prevents running similar task when using `setTimeout` in a `setInterval` fashion.  
+Since the class saves its instances, it can freely retrieve and stop them from any scope. Also prevents running similar task when using `setTimeout` in a `setInterval` fashion.  
 The class can also postpone the timeout if the task ping its wrapper: Timer.
 
 # Install
