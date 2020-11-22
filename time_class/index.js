@@ -53,13 +53,13 @@ const Timer = class {
     _log.set(this, initLogger(log, parseInt(verbose), this));
     this.time = (time || 2 * MINUTE);
   }
-  
+
   set time(timestamp) {
     if (!this._id) return;
     const time = parseInt(timestamp);
     if (time) _timestamp.set(this, parseInt(timestamp) + MARGIN);
     this._tick(this);
-	}
+  }
 
   get time() {
     return _timestamp.get(this);
@@ -125,11 +125,8 @@ const Timer = class {
   done(...log) {
     if (!this.inProgress) return;
     inProgress.set(this, false);
-    if (this._timeId) {
-      clearTimeout(this._timeId);
-      _timeId.set(this, undefined);
-    }
-    _log.get(this).done(...log);
+    clearTime(this);
+    if (!this.isAborted) _log.get(this).done(...log);
     if (_destroy.get(this)) this.destroy();
   }
 
@@ -167,7 +164,7 @@ const Timer = class {
 
   _tick(self) {
     if (!(self instanceof Timer)) throw new Error('Tick is being call without instance of Timer.');
-    if (self._timeId) clearTimeout(self._timeId);
+    clearTime(self);
     verifyTime(self);
     if (self.inProgress) {
       const nextTick = (self.lastUpdate.valueOf() + self.time) - new Date().valueOf();
@@ -199,13 +196,18 @@ const Timer = class {
   static destroyAll = destroyAll;
 };
 
-function verifyTime(self) {
-  if (self.isAborted || !self.inProgress) return;
+function clearTime(timer) {
+  clearTimeout(timer._timeId);
+  _timeId.set(timer, undefined);
+}
+
+function verifyTime(timer) {
+  if (timer.isAborted || !timer.inProgress) return;
   const now = new Date().valueOf();
-  const limit = self.lastUpdate.valueOf() + self.time;
+  const limit = timer.lastUpdate.valueOf() + timer.time;
   if (now >= limit) {
-    outed.set(self, true);
-    self.abort();
+    outed.set(timer, true);
+    timer.abort();
   }
 }
 

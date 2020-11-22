@@ -22,8 +22,8 @@ function formatDate(date) {
 }
 
 function getVerbose({args, log, level, timer: { _id, lastUpdate, time }}) {
-  const msg = args?.length ? args : [DefaultV[log] || ''];
-  const array = [...msg];
+  const msg = args?.length ? args : [DefaultV[log]];
+  const array = [...msg].filter(Boolean);
   const addLvl = parseInt(level / 10);
   if (addLvl >= 1) array.push(`(_id: ${_id})` );
   if (addLvl >= 2) array.unshift(`${formatHour()}`);
