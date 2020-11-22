@@ -255,6 +255,9 @@ Can be used to terminate a task if the said task verify if timer is aborted.
 async function bigTask(timer) {
   for (i = 0; i < 10; i++) {
     if (timer.isAborted) break;
+    // The following could be better if instance is set to be destroy after termination.
+    // See timer.getById(id, { createOne }) example.
+    // if (isRunning(timer)) break;
     await task();
     timer.update();
   }
