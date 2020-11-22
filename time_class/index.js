@@ -28,15 +28,15 @@ const Timer = class {
       throw new TypeError('The passed log is not a function.');
 
     try {
-      id = getId(id) 
+      id = getId(id);
     } catch (e) {
       if (!forceCreate) throw e;
       id = undefined;
     }
     if (!id && forceCreate) id = getId();
 
-    _id.set(this, id); 
-    if (id)  {
+    _id.set(this, id);
+    if (id) {
       if (save) saveTimer(this);
     }
     else {
@@ -59,8 +59,8 @@ const Timer = class {
     const time = parseInt(timestamp);
     if (time) _timestamp.set(this, parseInt(timestamp) + MARGIN);
     this._tick(this);
-  }
-  
+	}
+
   get time() {
     return _timestamp.get(this);
   }
@@ -72,7 +72,7 @@ const Timer = class {
   get createdAt() {
     return createdAt.get(this);
   }
-  
+
   get startedAt() {
     return startedAt.get(this);
   }
@@ -123,7 +123,7 @@ const Timer = class {
   }
 
   done(...log) {
-    if (!this._id) return;
+    if (!this.inProgress) return;
     inProgress.set(this, false);
     if (this._timeId) {
       clearTimeout(this._timeId);
@@ -134,7 +134,7 @@ const Timer = class {
   }
 
   abort(...log) {
-    if (!this._id) return;
+    if (!this.inProgress) return;
     aborted.set(this, true);
     const callback = _callback.get(this);
     const arg = _arg.get(this);
@@ -169,15 +169,12 @@ const Timer = class {
     if (!(self instanceof Timer)) throw new Error('Tick is being call without instance of Timer.');
     if (self._timeId) clearTimeout(self._timeId);
     verifyTime(self);
-    if (self.inProgress && self._id) {
-      const now = new Date().valueOf();
-      const limit = new Date(self.lastUpdate);
-      limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.time);
-      let nextTick = limit.valueOf() - now;
+    if (self.inProgress) {
+      const nextTick = (self.lastUpdate.valueOf() + self.time) - new Date().valueOf();
       _timeId.set(this, setTimeout(self._tick, nextTick, self));
     }
   }
-  
+
   _log(...args) {
     if (!this._id) throw new Error('The timer is being destroyed. No log possible.');
     _log.get(this).log(...args);
@@ -204,17 +201,13 @@ const Timer = class {
 
 function verifyTime(self) {
   if (self.isAborted || !self.inProgress) return;
-  const now = new Date();
-  const nowValue = now.valueOf();
-  const limit = new Date(self.lastUpdate);
-  limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.time);
-  const limitValue = limit.valueOf();
-  if (nowValue >= limitValue) {
+  const now = new Date().valueOf();
+  const limit = self.lastUpdate.valueOf() + self.time;
+  if (now >= limit) {
     outed.set(self, true);
     self.abort();
   }
 }
-
 
 function getId(id){
   const timers = TIMERS.get(Timer);
@@ -247,10 +240,8 @@ function getAll() {
 }
 
 function destroyAll(force = false) {
-  const timers = getAll();
-  timers.map(timer => {
-    const { inProgress, _id } = timer;
-    if (force && inProgress && _id) timer.abort();
+  getAll().map(timer => {
+    if (force && timer.inProgress) timer.abort();
     try {
       timer.destroy();
     } catch (_) {}
