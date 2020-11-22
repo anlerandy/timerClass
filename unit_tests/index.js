@@ -1,6 +1,6 @@
 const tap = require('tap');
 
-tap.jobs = 1;
+// tap.jobs = 1;
 
 // id basic tests
 require('./tests/get_id');

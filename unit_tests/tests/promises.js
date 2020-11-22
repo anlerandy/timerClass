@@ -7,7 +7,7 @@ const Timer = require(isProd ? '../../time_class' : '../../index');
 tap.test('Promise tests', async t => {
   t.jobs = 6;
   t.test('Reject Promise due to timeout', async t => {
-    timer = new Timer(10);
+    const timer = new Timer(10);
     const promise = wait(undefined, timer);
     return timer.launchTimer(promise)
       .then(_ => {
@@ -21,7 +21,7 @@ tap.test('Promise tests', async t => {
   });
   
   t.test('Reject Promise due to timeout with pass error log', async t => {
-    timer = new Timer(10);
+    const timer = new Timer(10);
     const promise = wait(undefined, timer);
     const errorMsg = 'Time runned out.';
     return timer.launchTimer(promise, errorMsg)
@@ -36,7 +36,7 @@ tap.test('Promise tests', async t => {
   });
   
   t.test('Resolve Promise', async t => {
-    timer = new Timer(2 * SECOND);
+    const timer = new Timer(2 * SECOND);
     const promise = wait(undefined, timer);
     return timer.launchTimer(promise)
       .then(_ => t.pass('Good, it succeed.') && t.end())
@@ -44,7 +44,7 @@ tap.test('Promise tests', async t => {
   });
   
   t.test('Reject Promise due to promise failure', async t => {
-    timer = new Timer(2 * SECOND);
+    const timer = new Timer(2 * SECOND);
     const promise = waitFail(undefined, timer);
     return timer.launchTimer(promise)
       .then(_ => t.fail('It Succeed...?!') && t.end())
@@ -52,7 +52,7 @@ tap.test('Promise tests', async t => {
   });
   
   t.test('Reject Promise due to promise failure with pass error log', async t => {
-    timer = new Timer(2 * SECOND);
+    const timer = new Timer(2 * SECOND);
     const errorMsg = 'Promise Failed. We gave it an arg that should not be displayed.';
     const promise = waitFail(undefined, timer);
     return timer.launchTimer(promise, errorMsg)
@@ -66,7 +66,7 @@ tap.test('Promise tests', async t => {
   });
   
   t.test('Reject Promise due to timeout after setting time', async t => {
-    timer = new Timer(2 * SECOND);
+    const timer = new Timer(2 * SECOND);
     const errorMsg = 'Promise Failed. We gave it an arg that should not be displayed.';
     const promise = timer.launchTimer(wait(undefined, timer), errorMsg);
     await sleep(SECOND / 2);

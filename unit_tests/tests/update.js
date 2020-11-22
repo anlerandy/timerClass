@@ -6,7 +6,7 @@ const Timer = require(isProd ? '../../time_class' : '../../index');
 tap.test('Update tests', async t => {
   t.jobs = 2;
   t.test('Sucessful updates (async)', async t => {
-    timer = new Timer(SECOND);
+    const timer = new Timer(SECOND);
     const promise = wait(undefined, timer);
     return timer.launchTimer(promise)
       .then(_ => {
@@ -20,12 +20,11 @@ tap.test('Update tests', async t => {
   });
 
   t.test('Sucessful updates (sync)', async t => {
-    timer = new Timer(SECOND);
+    const timer = new Timer(SECOND);
     const test = new Promise((resolve, _) => {
       const failed = () => {
         t.fail('It timed out?!');
         resolve();
-        t.end();
       };
       const promise = wait(undefined, timer);
       timer.launchTimer(failed);
@@ -34,16 +33,16 @@ tap.test('Update tests', async t => {
           timer.done()
         } catch (e) {
           t.fail('timer.done() is not working properly', e.message || e);
-          t.end();
           return;
         }
         resolve();
         t.pass('Updates went well.');
-        t.end();
       };
       return promise.then(succeed);
     });
-    return await test;
+    const result = await test;
+    t.end();
+    return result;
   });
 
   t.end();
