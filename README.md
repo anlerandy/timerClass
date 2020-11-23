@@ -1,4 +1,4 @@
-# Timer v1.0.4
+# Timer v1.0.5
 
 Wrap a task in a timer in order to stop it upon its timeout.
 Timer will be using a `callback` or its `promise.reject` upon timeout.  
@@ -43,7 +43,8 @@ Instanciate a timer.
 Type: `Number`  
 Default: `120000`  
 The number of milliseconds to wait before timeout. Default is 2 minutes.  
-Note: A 100 milliseconds is always added preventing premature timeout (default value included).
+Note: A 100 milliseconds is always added preventing premature timeout (default value included).  
+This means that if it's set at 1000ms, the actual calback will be in 1100ms. Retrieving it will shows 1000ms.
 
 ### **options**
 
@@ -147,11 +148,11 @@ Changing `time` while Timer is running can result in a timeout.
 | \_id          | `String`  |     N/A     | `id` of the instance                 |
 | createdAt     |  `Date`   |     N/A     | Creation date                        |
 | startedAt     |  `Date`   | `undefined` | Launch date                          |
-| lastUpdate    |  `Date`   | `undefined` | Last update (i.e. last postpone)     |
+| lastUpdate    |  `Date`   | `createdAt` | Last update (i.e. last postpone)     |
 | inProgress    | `boolean` |   `false`   | True if running                      |
 | isAborted     | `boolean` |   `false`   | True if cancelled                    |
 | isSelfAborted | `boolean` |   `false`   | True if the timer cancelled its task |
-| time          | `Number`  |  `120100`   | Time to wait before timeout (ms)     |
+| time          | `Number`  |  `120000`   | Time to wait before timeout (ms)     |
 
 All properties are `undefined` if the instance is being deleted.
 

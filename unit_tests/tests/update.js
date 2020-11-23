@@ -13,7 +13,7 @@ tap.test('Update tests', async t => {
         t.pass('Updates went well.');
         t.end();
       })
-      .catch(error => {
+      .catch(_ => {
         t.fail('It timed out?!');
         t.end();
       });

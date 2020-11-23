@@ -62,6 +62,11 @@ const Timer = class {
   }
 
   get time() {
+    if (!this._id) return;
+    return _timestamp.get(this) - MARGIN;
+  }
+
+  get _time() {
     return _timestamp.get(this);
   }
 
@@ -167,7 +172,7 @@ const Timer = class {
     clearTime(self);
     verifyTime(self);
     if (self.inProgress) {
-      const nextTick = (self.lastUpdate.valueOf() + self.time) - new Date().valueOf();
+      const nextTick = (self.lastUpdate.valueOf() + self._time) - new Date().valueOf();
       _timeId.set(this, setTimeout(self._tick, nextTick, self));
     }
   }
@@ -204,7 +209,7 @@ function clearTime(timer) {
 function verifyTime(timer) {
   if (timer.isAborted || !timer.inProgress) return;
   const now = new Date().valueOf();
-  const limit = timer.lastUpdate.valueOf() + timer.time;
+  const limit = timer.lastUpdate.valueOf() + timer._time;
   if (now >= limit) {
     outed.set(timer, true);
     timer.abort();
@@ -243,7 +248,7 @@ function getAll() {
 
 function destroyAll(force = false) {
   getAll().map(timer => {
-    if (force && timer.inProgress) timer.abort();
+    if (force) timer.abort();
     try {
       timer.destroy();
     } catch (_) {}
