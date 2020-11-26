@@ -1,11 +1,11 @@
 const tap = require('tap');
-const { SECOND, wait } = require('../helpers/wait');
+const { MINUTE, SECOND, wait } = require('../helpers/wait');
 const isProd = process.env.ISPROD === 'true';
 const Timer = require(isProd ? '../../time_class' : '../../index');
 
 tap.test('Errors feedBack tests', t => {
 
-  t.jobs = 11;
+  t.jobs = 10;
 
   t.test('Callback is nor a Function nor a Promise', t => {
     const timer = new Timer(SECOND);
@@ -16,20 +16,21 @@ tap.test('Errors feedBack tests', t => {
       const msg = e.message || e;
       t.equal(msg, 'The passed callback is not a function.');
     }
+    // timer.done();
     t.end();
   });
 
-  t.test('Callback is required', t => {
-    const timer = new Timer(SECOND);
-    try {
-      timer.launchTimer();
-      t.fail('Should not work...');
-    } catch (e) {
-      const msg = e.message || e;
-      t.equal(msg, 'Callback is required.');
-    }
-    t.end();
-  });
+  // t.test('Callback is required', t => {
+  //   const timer = new Timer(SECOND);
+  //   try {
+  //     timer.launchTimer();
+  //     t.fail('Should not work...');
+  //   } catch (e) {
+  //     const msg = e.message || e;
+  //     t.equal(msg, 'Callback is required.');
+  //   }
+  //   t.end();
+  // });
 
   t.test('Passed argument is not a Promise', async t => {
     const timer = new Timer(SECOND);
@@ -40,12 +41,13 @@ tap.test('Errors feedBack tests', t => {
       const msg = e.message || e;
       t.equal(msg, '`First argument` must be a Promise.');
     }
+    // timer.done();
     t.end();
   });
 
   t.test('Already Launch', t => {
-    const timer = new Timer(SECOND);
-    timer.launchTimer(() => {});
+    const timer = new Timer(MINUTE); // For last test
+    const promise = timer.launchTimer(() => {});
     try {
       timer.launchTimer(() => {});
       t.fail('Should not work!');
@@ -54,6 +56,12 @@ tap.test('Errors feedBack tests', t => {
       t.equal(msg, 'Timer already launched.');
     }
     t.end();
+    setTimeout(async () => {
+			try {
+			
+				await promise;
+			} catch (_) {}
+		});
   });
 
   t.test('Already Launch (Promise)', async t => {
@@ -81,6 +89,7 @@ tap.test('Errors feedBack tests', t => {
       const msg = e.message || e;
       t.equal(msg, 'Please abort() or done() the Timer before destroying it.');
     }
+    timer.done();
     t.end();
   });
 

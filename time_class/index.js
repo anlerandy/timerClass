@@ -15,10 +15,11 @@ const _destroy = new WeakMap();
 const _timeId = new WeakMap();
 const _id = new WeakMap();
 const _callback = new WeakMap();
-const _arg = new WeakMap();
+// const _arg = new WeakMap();
 const TIMERS = new WeakMap();
 const _log = new WeakMap();
 const _timestamp = new WeakMap();
+const _finisher = new WeakMap();
 
 const Timer = class {
   constructor(time, options = {}) {
@@ -115,9 +116,10 @@ const Timer = class {
     _destroy.delete(this);
     _timeId.delete(this);
     _callback.delete(this);
-    _arg.delete(this);
+    // _arg.delete(this);
     _log.delete(this);
     _timestamp.delete(this);
+    _finisher.delete(this);
     const timers = TIMERS.get(Timer);
     if (timers[this._id]) {
       const { [this._id]: timer, ...others } = timers;
@@ -132,6 +134,7 @@ const Timer = class {
     inProgress.set(this, false);
     clearTime(this);
     if (!this.isAborted) _log.get(this).done(...log);
+    _finisher.get(this)?.();
     if (_destroy.get(this)) this.destroy();
   }
 
@@ -139,9 +142,9 @@ const Timer = class {
     if (!this.inProgress) return;
     aborted.set(this, true);
     const callback = _callback.get(this);
-    const arg = _arg.get(this);
+    // const arg = _arg.get(this);
     _log.get(this).abort(...log);
-    callback(arg);
+    callback(/* arg */);
     this.done();
   }
 
@@ -155,16 +158,26 @@ const Timer = class {
     if (this.inProgress) throw new Error('Timer already launched.');
     if (!this._id) throw new Error('Timer is being deleted.');
     if (callback instanceof Promise) return this.launchTimerPromise(callback, arg, ...log);
-    if (!callback || {}.toString.call(callback) !== '[object Function]')
-      throw new TypeError(callback ? 'The passed callback is not a function.' : 'Callback is required.');
-    _callback.set(this, callback);
-    _arg.set(this, arg);
+    if (callback && {}.toString.call(callback) !== '[object Function]')
+      throw new TypeError('The passed callback is not a function.');
+    // _callback.set(this, callback);
+    // _arg.set(this, arg);
     aborted.set(this, false);
     outed.set(this, false);
     inProgress.set(this, true);
     startedAt.set(this, new Date());
     _timeId.set(this, setTimeout(this._tick, this.time, this));
     _log.get(this).launch(...log);
+    const promise = new Promise((resolve, reject) => {
+      const newCallback = _ => {
+        if (callback) callback(arg);
+        reject(arg);
+      };
+      const finisher = _ => resolve({ status: 'Done' });
+      _callback.set(this, newCallback);
+      _finisher.set(this, finisher);
+    });
+    return promise;
   }
 
   _tick(self) {
@@ -185,15 +198,14 @@ const Timer = class {
   async launchTimerPromise(promise, arg, ...log) {
     if (this.inProgress) throw new Error('Timer already launched.');
     if (!(promise instanceof Promise)) throw new TypeError('`First argument` must be a Promise.');
-    const self = this;
-    const timerPromise = new Promise((_, reject) => self.launchTimer(reject, arg, ...log));
+    const timerPromise = this.launchTimer(undefined, arg, ...log);
     try {
-      const result = await Promise.race([promise, timerPromise]);
+      const value = await Promise.race([promise, timerPromise]);
       this.done();
-      return result;
-    } catch (e) {
+      return { status: 'Done', value };
+    } catch (error) {
       this.abort();
-      throw e;
+      throw { status: this.isSelfAborted ? 'Timeout' : 'Aborted', message: error?.message || error };
     }
   }
   static getById = getTimerById;

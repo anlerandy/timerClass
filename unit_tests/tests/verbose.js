@@ -23,6 +23,7 @@ tap.test('Verbose tests', t => {
     const promise = wait(undefined, timer);
     timer.launchTimer(() => {}, null, testName1, ...logs);
     await promise;
+    timer.done();
     t.pass();
     t.end();
   });

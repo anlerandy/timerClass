@@ -15,7 +15,7 @@ tap.test('Promise tests', async t => {
         t.end();
       })
       .catch(error => {
-        t.equal(error, 'TimeOut');
+        t.equal(error.message || error, 'TimeOut');
         t.end();
       });
   });
@@ -29,8 +29,8 @@ tap.test('Promise tests', async t => {
         t.fail('It Succeed...?!');
         t.end();
       })
-      .catch(error => {
-        t.equal(error, errorMsg);
+      .catch((error) => {
+        t.equal(error.message || error, errorMsg);
         t.end();
       });
   });
