@@ -31,18 +31,16 @@ const Timer = class {
       id = getId(id);
     } catch (e) {
       if (!forceCreate) throw e;
-      id = undefined;
+      id = getId();
     }
-    if (!id && forceCreate) id = getId();
+    if (!id) {
+      if (forceCreate) id = getId();
+      else
+        throw new Error('Timer already exist. To retrieve the existing one, please use `getById` Method.');
+    }
 
     _id.set(this, id);
-    if (id) {
-      if (save) saveTimer(this);
-    }
-    else {
-      _id.delete(this);
-      throw new Error('Timer already exist. To retrieve the existing one, please use `getById` Method.');
-    }
+    if (save) saveTimer(this);
 
     lastUpdate.set(this, new Date());
     createdAt.set(this, new Date());
