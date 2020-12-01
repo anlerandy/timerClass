@@ -29,14 +29,11 @@ const Timer = class {
 
     try {
       id = getId(id);
+      if (!id)
+        throw new Error('Timer already exist. To retrieve the existing one, please use `getById` Method.');
     } catch (e) {
       if (!forceCreate) throw e;
       id = getId();
-    }
-    if (!id) {
-      if (forceCreate) id = getId();
-      else
-        throw new Error('Timer already exist. To retrieve the existing one, please use `getById` Method.');
     }
 
     _id.set(this, id);

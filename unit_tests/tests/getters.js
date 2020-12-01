@@ -71,14 +71,14 @@ tap.test('Getters test', t => {
   });
   
   t.test('Get time', async t => {
-  const timer = new Timer(SECOND);
-  timer.time = 2 * SECOND;
-  timer.time = 'wuoifne';
-  t.equal(timer.time, 2 * SECOND);
-  timer.destroy();
-  timer.time = SECOND;
-  t.equal(timer.time, undefined);
-  t.end();
+    const timer = new Timer(SECOND);
+    timer.time = 2 * SECOND;
+    timer.time = 'wuoifne';
+    t.equal(timer.time, 2 * SECOND);
+    timer.destroy();
+    timer.time = SECOND;
+    t.equal(timer.time, undefined);
+    t.end();
   });
 
   t.end();
