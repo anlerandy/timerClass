@@ -1,4 +1,4 @@
-# Timer v1.0.5
+# Timer v^1.0.5
 
 Wrap a task in a timer in order to stop it upon its timeout.
 Timer will be using a `callback` or its `promise.reject` upon timeout.  
