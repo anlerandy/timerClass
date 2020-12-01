@@ -189,14 +189,20 @@ function task(callback) {
 (function () {
   const timer = new Timer();
 
-  function callback(data) {
+  function successCallback(data) {
+    // Depending on timer destroy option, it's better getting _.inProgress (destroy as true) than _.isAborted.
+    // _.inProgress & _.isAborted can tell if there was a Timeout and exit this function.
     if (timer.isAborted) return;
     else timer.done();
     // Do what should be done after task();
   }
 
-  timer.launchTimer(callback);
-  task(callback);
+  function failureCallback() {
+    // Do what should be done upon timeout.
+  }
+
+  timer.launchTimer(failureCallback);
+  task(successCallback);
 })();
 ```
 
