@@ -25,9 +25,6 @@
     "url": "https://github.com/anlerandy/timerClass/issues"
   },
   "homepage": "https://github.com/anlerandy/timerClass#readme",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "devDependencies": {
     "@babel/cli": "^7.12.1",
     "@babel/core": "^7.12.3",
