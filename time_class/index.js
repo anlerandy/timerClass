@@ -1,31 +1,33 @@
-const initLogger = require('./helpers/log');
-const validateId = require('./helpers/id');
+const { initLogger, isFunction, validateId } = require('./helpers');
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
-const MARGIN = 100; // The margin is a timestamp preventing rejection due to initialisation/launch time.
+const MARGIN = 100;
 
-const createdAt = new WeakMap();
-const startedAt = new WeakMap();
-const aborted = new WeakMap();
-const outed = new WeakMap();
-const lastUpdate = new WeakMap();
-const inProgress = new WeakMap();
-const _destroy = new WeakMap();
-const _timeId = new WeakMap();
-const _id = new WeakMap();
-const _callback = new WeakMap();
-const _arg = new WeakMap();
+const _ALL = new Array(13).fill(undefined).map(_ => new WeakMap());
+const [
+  createdAt,
+  startedAt,
+  aborted,
+  outed,
+  lastUpdate,
+  inProgress,
+  _destroy,
+  _timeId,
+  _id,
+  _callback,
+  _arg,
+  _log,
+  _timestamp
+] = _ALL;
+
 const TIMERS = new WeakMap();
-const _log = new WeakMap();
-const _timestamp = new WeakMap();
 
 const Timer = class {
   constructor(time, options = {}) {
     const { forceCreate, save = true, destroy = true, verbose = 0, log = console.log } = options;
     let { id } = options;
-    if ({}.toString.call(log) !== '[object Function]')
-      throw new TypeError('The passed log is not a function.');
+    if (!isFunction(log)) throw new TypeError('The passed log is not a function.');
 
     try {
       id = getId(id);
@@ -37,7 +39,7 @@ const Timer = class {
     }
 
     _id.set(this, id);
-    if (save) saveTimer(this);
+    if (save) TIMERS.set(Timer, { ...TIMERS.get(Timer), [this._id]: this });
 
     lastUpdate.set(this, new Date());
     createdAt.set(this, new Date());
@@ -50,9 +52,9 @@ const Timer = class {
   }
 
   set time(timestamp) {
-    if (!this._id) return;
-    const time = parseInt(timestamp);
-    if (time) _timestamp.set(this, parseInt(timestamp) + MARGIN);
+    const parsedTime = parseInt(timestamp);
+    if (!this._id || `${parsedTime}` !== `${timestamp}`) return;
+    _timestamp.set(this, parsedTime + MARGIN);
     this._tick(this);
   }
 
@@ -101,31 +103,15 @@ const Timer = class {
     if (!this._id) return;
     if (this.inProgress && !this.aborted)
       throw new Error('Please abort() or done() the Timer before destroying it.');
-    createdAt.delete(this);
-    startedAt.delete(this);
-    lastUpdate.delete(this);
-    inProgress.delete(this);
-    aborted.delete(this);
-    outed.delete(this);
-    _destroy.delete(this);
-    _timeId.delete(this);
-    _callback.delete(this);
-    _arg.delete(this);
-    _log.delete(this);
-    _timestamp.delete(this);
-    const timers = TIMERS.get(Timer);
-    if (timers[this._id]) {
-      const { [this._id]: timer, ...others } = timers;
-      TIMERS.set(Timer, others);
-    }
-    _id.delete(this);
-    return null;
+    const { [this._id]: timer, ...others } = TIMERS.get(Timer);
+    TIMERS.set(Timer, others);
+    _ALL.map(el => el.delete(this));
   }
 
   done(...log) {
     if (!this.inProgress) return;
     inProgress.set(this, false);
-    clearTime(this);
+    clearTimeout(this._timeId);
     if (!this.isAborted) _log.get(this).done(...log);
     if (_destroy.get(this)) this.destroy();
   }
@@ -150,7 +136,7 @@ const Timer = class {
     if (this.inProgress) throw new Error('Timer already launched.');
     if (!this._id) throw new Error('Timer is being deleted.');
     if (callback instanceof Promise) return this.launchTimerPromise(callback, arg, ...log);
-    if (!callback || {}.toString.call(callback) !== '[object Function]')
+    if (!callback || !isFunction(callback))
       throw new TypeError(callback ? 'The passed callback is not a function.' : 'Callback is required.');
     _callback.set(this, callback);
     _arg.set(this, arg);
@@ -164,7 +150,7 @@ const Timer = class {
 
   _tick(self) {
     if (!(self instanceof Timer)) throw new Error('Tick is being call without instance of Timer.');
-    clearTime(self);
+    clearTimeout(self._timeId);
     verifyTime(self);
     if (self.inProgress) {
       const nextTick = (self.lastUpdate.valueOf() + self._time) - new Date().valueOf();
@@ -192,14 +178,9 @@ const Timer = class {
     }
   }
   static getById = getTimerById;
-  static getAll = getAll;
+  static getAll = () => Object.values(TIMERS.get(Timer));
   static destroyAll = destroyAll;
 };
-
-function clearTime(timer) {
-  clearTimeout(timer._timeId);
-  _timeId.set(timer, undefined);
-}
 
 function verifyTime(timer) {
   if (timer.isAborted || !timer.inProgress) return;
@@ -215,7 +196,7 @@ function getId(id){
   const timers = TIMERS.get(Timer);
   if (id) {
     validateId(id);
-    if (!timers[id]) return id
+    if (!timers[id]) return id;
     else return;
   }
   id = 1;
@@ -223,26 +204,17 @@ function getId(id){
   return id;
 }
 
-function saveTimer(timer) {
-  const timers = TIMERS.get(Timer);
-  TIMERS.set(Timer, { ...timers, [timer._id]: timer });
-}
-
 function getTimerById(id, options = {}) {
   const { createOne = true, time } = options;
   validateId(id);
   const timers = TIMERS.get(Timer);
-  const timer = timers?.[id];
+  const timer = timers[id];
   if (!timer && createOne) return new Timer(time, { ...options, id });
   return timer;
 }
 
-function getAll() {
-  return Object.values(TIMERS.get(Timer));
-}
-
 function destroyAll(force = false) {
-  getAll().map(timer => {
+  Timer.getAll().map(timer => {
     if (force) timer.abort();
     try {
       timer.destroy();

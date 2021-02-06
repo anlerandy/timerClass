@@ -1,8 +1,4 @@
-const UPDATE = 'Updated';
-const DONE = 'Done';
-const ABORT = 'Aborted';
-const LAUNCH = 'Launched';
-const DefaultV = { UPDATE, DONE, ABORT, LAUNCH };
+const DefaultV = { UPDATE: 'Updated', DONE: 'Done', ABORT: 'Aborted', LAUNCH: 'Launched' };
 
 function formatHour(date = new Date()) {
     const hours = date.getHours();
@@ -87,7 +83,5 @@ function launchLog(logFn, level, timer) {
     defaultLog(logFn)(...args);
   }
 }
-
-
 
 module.exports = initLogger;
