@@ -1,47 +1,45 @@
-const initLogger = require('./helpers/log');
-const validateId = require('./helpers/id');
+const { initLogger, isFunction, validateId } = require('./helpers');
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
-const MARGIN = 100; // The margin is a timestamp preventing rejection due to initialisation/launch time.
+const MARGIN = 100;
 
-const createdAt = new WeakMap();
-const startedAt = new WeakMap();
-const aborted = new WeakMap();
-const outed = new WeakMap();
-const lastUpdate = new WeakMap();
-const inProgress = new WeakMap();
-const _destroy = new WeakMap();
-const _timeId = new WeakMap();
-const _id = new WeakMap();
-const _callback = new WeakMap();
-const _arg = new WeakMap();
+const _ALL = new Array(13).fill(undefined).map(_ => new WeakMap());
+const [
+  createdAt,
+  startedAt,
+  aborted,
+  outed,
+  lastUpdate,
+  inProgress,
+  _destroy,
+  _timeId,
+  _id,
+  _callback,
+  _arg,
+  _log,
+  _timestamp
+] = _ALL;
+
 const TIMERS = new WeakMap();
-const _log = new WeakMap();
 
 const Timer = class {
-  constructor(timer, options = {}) {
+  constructor(time, options = {}) {
     const { forceCreate, save = true, destroy = true, verbose = 0, log = console.log } = options;
     let { id } = options;
-    if ({}.toString.call(log) !== '[object Function]')
-      throw new TypeError('The passed log is not a function.');
+    if (!isFunction(log)) throw new TypeError('The passed log is not a function.');
 
     try {
-      id = getId(id) 
+      id = getId(id);
+      if (!id)
+        throw new Error('Timer already exist. To retrieve the existing one, please use `getById` Method.');
     } catch (e) {
       if (!forceCreate) throw e;
-      id = undefined;
+      id = getId();
     }
-    if (!id && forceCreate) id = getId();
 
-    _id.set(this, id); 
-    if (id)  {
-      if (save) saveTimer(this);
-    }
-    else {
-      _id.delete(this);
-      throw new Error('Timer already exist. To retrieve the existing one, please use `getById` Method.');
-    }
+    _id.set(this, id);
+    if (save) TIMERS.set(Timer, { ...TIMERS.get(Timer), [this._id]: this });
 
     lastUpdate.set(this, new Date());
     createdAt.set(this, new Date());
@@ -50,8 +48,23 @@ const Timer = class {
     inProgress.set(this, false);
     _destroy.set(this, destroy);
     _log.set(this, initLogger(log, parseInt(verbose), this));
-    this.timer = (parseInt(timer) || 2 * MINUTE) + MARGIN;
-    Object.freeze(this);
+    this.time = (time || 2 * MINUTE);
+  }
+
+  set time(timestamp) {
+    const parsedTime = parseInt(timestamp);
+    if (!this._id || `${parsedTime}` !== `${timestamp}`) return;
+    _timestamp.set(this, parsedTime + MARGIN);
+    this._tick(this);
+  }
+
+  get time() {
+    if (!this._id) return;
+    return _timestamp.get(this) - MARGIN;
+  }
+
+  get _time() {
+    return _timestamp.get(this);
   }
 
   get _id() {
@@ -61,7 +74,7 @@ const Timer = class {
   get createdAt() {
     return createdAt.get(this);
   }
-  
+
   get startedAt() {
     return startedAt.get(this);
   }
@@ -90,39 +103,21 @@ const Timer = class {
     if (!this._id) return;
     if (this.inProgress && !this.aborted)
       throw new Error('Please abort() or done() the Timer before destroying it.');
-    createdAt.delete(this);
-    startedAt.delete(this);
-    lastUpdate.delete(this);
-    inProgress.delete(this);
-    _timeId.delete(this);
-    aborted.delete(this);
-    outed.delete(this);
-    _destroy.delete(this);
-    _callback.delete(this);
-    _arg.delete(this);
-    _log.delete(this);
-    const timers = TIMERS.get(Timer);
-    if (timers[this._id]) {
-      const { [this._id]: timer, ...others } = timers;
-      TIMERS.set(Timer, others);
-    }
-    _id.delete(this);
-    return null;
+    const { [this._id]: timer, ...others } = TIMERS.get(Timer);
+    TIMERS.set(Timer, others);
+    _ALL.map(el => el.delete(this));
   }
 
   done(...log) {
-    if (!this._id) return;
+    if (!this.inProgress) return;
     inProgress.set(this, false);
-    if (this._timeId) {
-      clearTimeout(this._timeId);
-      _timeId.set(this, undefined);
-    }
-    _log.get(this).done(...log);
+    clearTimeout(this._timeId);
+    if (!this.isAborted) _log.get(this).done(...log);
     if (_destroy.get(this)) this.destroy();
   }
 
   abort(...log) {
-    if (!this._id) return;
+    if (!this.inProgress) return;
     aborted.set(this, true);
     const callback = _callback.get(this);
     const arg = _arg.get(this);
@@ -141,7 +136,7 @@ const Timer = class {
     if (this.inProgress) throw new Error('Timer already launched.');
     if (!this._id) throw new Error('Timer is being deleted.');
     if (callback instanceof Promise) return this.launchTimerPromise(callback, arg, ...log);
-    if (!callback || {}.toString.call(callback) !== '[object Function]')
+    if (!callback || !isFunction(callback))
       throw new TypeError(callback ? 'The passed callback is not a function.' : 'Callback is required.');
     _callback.set(this, callback);
     _arg.set(this, arg);
@@ -149,23 +144,20 @@ const Timer = class {
     outed.set(this, false);
     inProgress.set(this, true);
     startedAt.set(this, new Date());
-    _timeId.set(this, setTimeout(this._tick, this.timer, this));
+    _timeId.set(this, setTimeout(this._tick, this.time, this));
     _log.get(this).launch(...log);
   }
 
   _tick(self) {
     if (!(self instanceof Timer)) throw new Error('Tick is being call without instance of Timer.');
-    if (self._timeId) clearTimeout(self._timeId);
+    clearTimeout(self._timeId);
     verifyTime(self);
-    if (self.inProgress && self._id) {
-      const now = new Date().valueOf();
-      const limit = new Date(self.lastUpdate);
-      limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
-      let nextTick = limit.valueOf() - now;
+    if (self.inProgress) {
+      const nextTick = (self.lastUpdate.valueOf() + self._time) - new Date().valueOf();
       _timeId.set(this, setTimeout(self._tick, nextTick, self));
     }
   }
-  
+
   _log(...args) {
     if (!this._id) throw new Error('The timer is being destroyed. No log possible.');
     _log.get(this).log(...args);
@@ -185,56 +177,45 @@ const Timer = class {
       throw e;
     }
   }
+  static getById = getTimerById;
+  static getAll = () => Object.values(TIMERS.get(Timer));
+  static destroyAll = destroyAll;
 };
 
-function verifyTime(self) {
-  if (self.isAborted || !self.inProgress) return;
-  const now = new Date();
-  const nowValue = now.valueOf();
-  const limit = new Date(self.lastUpdate);
-  limit.setMilliseconds(self.lastUpdate.getMilliseconds() + self.timer);
-  const limitValue = limit.valueOf();
-  if (nowValue >= limitValue) {
-    outed.set(self, true);
-    self.abort();
+function verifyTime(timer) {
+  if (timer.isAborted || !timer.inProgress) return;
+  const now = new Date().valueOf();
+  const limit = timer.lastUpdate.valueOf() + timer._time;
+  if (now >= limit) {
+    outed.set(timer, true);
+    timer.abort();
   }
 }
 
-
 function getId(id){
-  if (id) validateId(id);
   const timers = TIMERS.get(Timer);
-  if (id) 
-    if (!timers[id]) return id
+  if (id) {
+    validateId(id);
+    if (!timers[id]) return id;
     else return;
+  }
   id = 1;
   while (timers[id]) ++id;
   return id;
-}
-
-function saveTimer(timer) {
-  const timers = TIMERS.get(Timer);
-  TIMERS.set(Timer, { ...timers, [timer._id]: timer });
 }
 
 function getTimerById(id, options = {}) {
   const { createOne = true, time } = options;
   validateId(id);
   const timers = TIMERS.get(Timer);
-  const timer = timers?.[id];
+  const timer = timers[id];
   if (!timer && createOne) return new Timer(time, { ...options, id });
   return timer;
 }
 
-function getAll() {
-  return Object.values(TIMERS.get(Timer));
-}
-
 function destroyAll(force = false) {
-  const timers = getAll();
-  timers.map(timer => {
-    const { inProgress, _id } = timer;
-    if (force && inProgress && _id) timer.abort();
+  Timer.getAll().map(timer => {
+    if (force) timer.abort();
     try {
       timer.destroy();
     } catch (_) {}
@@ -242,13 +223,5 @@ function destroyAll(force = false) {
 }
 
 TIMERS.set(Timer, {});
-
-Timer.getById = getTimerById;
-
-Timer.getAll = getAll;
-
-Timer.destroyAll = destroyAll;
-
-Object.freeze(Timer);
 
 module.exports = Timer;

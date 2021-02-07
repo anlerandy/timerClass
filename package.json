@@ -1,7 +1,7 @@
 {
   "name": "@anlerandy/timer",
-  "version": "1.0.3",
-  "description": "TimeOut manager for sensible process.",
+  "version": "1.0.7",
+  "description": "Timeout manager for sensible process.",
   "main": "index.js",
   "scripts": {
     "build": "cd ./tests && npm run build",
@@ -13,7 +13,10 @@
   },
   "keywords": [
     "timeout",
-    "setTimeout"
+    "setTimeout",
+    "setInterval",
+    "timer",
+    "schedule"
   ],
   "author": "Andy L.",
   "license": "ISC",
@@ -21,11 +24,26 @@
     "url": "https://github.com/anlerandy/timerClass/issues"
   },
   "homepage": "https://github.com/anlerandy/timerClass#readme",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
+  "devDependencies": {
+    "@babel/cli": "^7.12.1",
+    "@babel/core": "^7.12.3",
+    "@babel/plugin-proposal-class-properties": "^7.12.1",
+    "@babel/preset-env": "^7.12.1",
+    "@babel/register": "^7.12.1",
+    "babel-loader": "^8.1.0",
+    "babel-preset-stage-0": "^6.24.1",
+    "tap": "^14.10.8",
+    "webpack": "^5.3.0",
+    "webpack-cli": "^4.1.0"
+  },
+  "tap": {
+    "nyc-arg": [
+      "--exclude=**/unit_tests"
+    ]
   },
   "files": [
     "index.js",
-    "lib"
+    "lib",
+    "CHANGELIG.md"
   ]
 }

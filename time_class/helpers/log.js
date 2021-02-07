@@ -1,8 +1,4 @@
-const UPDATE = 'Updated';
-const DONE = 'Done';
-const ABORT = 'Aborted';
-const LAUNCH = 'Launched';
-const DefaultV = { UPDATE, DONE, ABORT, LAUNCH };
+const DefaultV = { UPDATE: 'Updated', DONE: 'Done', ABORT: 'Aborted', LAUNCH: 'Launched' };
 
 function formatHour(date = new Date()) {
     const hours = date.getHours();
@@ -21,15 +17,15 @@ function formatDate(date) {
   return `${dateString} ${hours}`;
 }
 
-function getVerbose({args, log, level, timer: { _id, lastUpdate, timer: timeout }}) {
-  const msg = args?.length ? args : [DefaultV[log] || ''];
-  const array = [...msg];
+function getVerbose({args, log, level, timer: { _id, lastUpdate, time }}) {
+  const msg = args?.length ? args : [DefaultV[log]];
+  const array = [...msg].filter(Boolean);
   const addLvl = parseInt(level / 10);
   if (addLvl >= 1) array.push(`(_id: ${_id})` );
   if (addLvl >= 2) array.unshift(`${formatHour()}`);
   if (addLvl === 3) {
     const ms = lastUpdate.getMilliseconds();
-    lastUpdate.setMilliseconds(ms + timeout);
+    lastUpdate.setMilliseconds(ms + time);
     array.push(`Timeout on ${formatDate(lastUpdate)}.`)
   }
   return array;
@@ -87,7 +83,5 @@ function launchLog(logFn, level, timer) {
     defaultLog(logFn)(...args);
   }
 }
-
-
 
 module.exports = initLogger;

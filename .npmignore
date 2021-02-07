@@ -6,3 +6,5 @@ package-lock.json
 .gitignore
 unit_tests
 tests
+.github
+.github/workflows

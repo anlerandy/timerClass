@@ -33,9 +33,9 @@ tap.test('getId tests', async t => {
   });
 
   t.test('Create a new timer with getById', async t => {
-    let timer = Timer.getById('timer3', { createOne: false });
-    if (timer) t.fail('Before trying to create Timer with getById, timer seems to exist of getById {createOne false} is not working properly.');
-    timer = Timer.getById('timer3');
+    const tmp = Timer.getById('timer3', { createOne: false });
+    if (tmp) t.fail('Before trying to create Timer with getById, timer seems to exist of getById {createOne false} is not working properly.');
+    const timer = Timer.getById('timer3');
     const id = timer?._id;
     if (timer && id) t.pass('Sucessfully create a new Timer with getById');
     else t.fail('No Timer create by getById...');

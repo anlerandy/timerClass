@@ -58,6 +58,7 @@ tap.test('Save & Destroy tests', async t => {
   
   t.test('Destroy timer through done', t => {
     const timer = new Timer(SECOND, { save: false });
+    timer.launchTimer(console.log);
     timer.done();
     if (timer._id) t.fail('Still has its `_id`.');
     else t.pass('Done correctly destroyed the timer.');
