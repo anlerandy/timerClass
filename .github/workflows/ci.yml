@@ -12,8 +12,10 @@ on:
       - master
 
 jobs:
-  test:
+  tapJs_tests:
     runs-on: ubuntu-latest
+    env:
+      TERM: xterm-256color
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -21,4 +23,4 @@ jobs:
           node-version: 14
       - run: npm i
       - run: npm test
-      - run: npm buildtest
+      - run: npm run buildtest
