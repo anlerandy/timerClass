@@ -23,6 +23,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     env:
+      NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      NPM_TOKEN: ${{secrets.NPM_TOKEN}}
       TERM: xterm-256color
     steps:
       - uses: actions/checkout@v2
@@ -32,13 +34,13 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: npm i
       - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
   publish-gpr:
     needs: build
     runs-on: ubuntu-latest
     env:
+      NODE_AUTH_TOKEN: ${{secrets.GITPACKAGES_TOKEN}}
+      NPM_TOKEN: ${{secrets.GITPACKAGES_TOKEN}}
       TERM: xterm-256color
     steps:
       - uses: actions/checkout@v2
@@ -48,5 +50,3 @@ jobs:
           registry-url: https://npm.pkg.github.com/
       - run: npm i
       - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
