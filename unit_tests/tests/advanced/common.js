@@ -6,7 +6,7 @@ function tests(t) {
   
   t.test('Get All Timers', t => {
     const timers = Timer.getAll();
-    if (timers?.length) t.pass('We got an array of timers!');
+    if (timers.length) t.pass('We got an array of timers!');
     else t.fail('No timers found...');
     t.end()
   });
@@ -42,7 +42,7 @@ function tests(t) {
   
   t.test('Destroy when empty storage', t => {
     const timers = Timer.getAll();
-    if (timers?.length) t.fail('We have timers in storage.');
+    if (timers.length) t.fail('We have timers in storage.');
     else {
       const timer = new Timer(0, { save: false, destroy: false });
       try {

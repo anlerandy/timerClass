@@ -26,7 +26,7 @@ tap.test('getId tests', async t => {
 
   t.test('Get stocked Timer', async t => {
     const timer = Timer.getById('timer1', { createOne: false });
-    const id = timer?._id;
+    const id = timer && timer._id;
     if (!timer || !id) t.fail('No timer found?!');
     else t.equal(id, 'timer1');
     t.end();
@@ -36,7 +36,7 @@ tap.test('getId tests', async t => {
     const tmp = Timer.getById('timer3', { createOne: false });
     if (tmp) t.fail('Before trying to create Timer with getById, timer seems to exist of getById {createOne false} is not working properly.');
     const timer = Timer.getById('timer3');
-    const id = timer?._id;
+    const id = timer && timer._id;
     if (timer && id) t.pass('Sucessfully create a new Timer with getById');
     else t.fail('No Timer create by getById...');
     t.end();
@@ -44,7 +44,7 @@ tap.test('getId tests', async t => {
 
   t.test('Create a new timer with existing ID (forced)', async t => {
     const timer = new Timer(SECOND, { id: 'timer1', forceCreate: true });
-    const id = timer?._id;
+    const id = timer && timer._id;
     if (!id) t.fail('It was not created?!');
     else t.notEqual(id, 'timer1');
     t.end();
@@ -52,7 +52,7 @@ tap.test('getId tests', async t => {
 
   t.test('Create a new timer with invalid ID (forced)', async t => {
     const timer = new Timer(SECOND, { id: true, forceCreate: true });
-    const id = timer?._id;
+    const id = timer && timer._id;
     if (!id) t.fail('It was not created?!');
     else t.notEqual(id, true);
     t.end();

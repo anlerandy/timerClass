@@ -58,7 +58,7 @@ tap.test('Promise tests', async t => {
     return timer.launchTimer(promise, errorMsg)
       .then(_ => t.fail('It Succeed...?!') && t.end())
       .catch(error => {
-        const msg = error?.message;
+        const msg = error && error.message;
         if (!msg) t.fail('Why there is no error?');
         else t.notEqual(msg, errorMsg);
         t.end();
