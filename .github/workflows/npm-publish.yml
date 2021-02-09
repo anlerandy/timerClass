@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: 10
+          node-version: 8
       - run: npm run buildtest
 
   publish-npm:
@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: 10
+          node-version: 8
           registry-url: https://registry.npmjs.org/
       - run: npm i
       - run: npm publish
@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: 10
+          node-version: 8
           registry-url: https://npm.pkg.github.com/
       - run: npm i
       - run: npm publish

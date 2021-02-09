@@ -51,7 +51,7 @@ tap.test('Verbose tests', t => {
       const promise = timer.launchTimer(wait(undefined, timer));
       timer.abort(testName4, ...logs);
       await promise;
-    } catch {
+    } catch (_) {
       t.pass();
     }
     t.end();
@@ -67,7 +67,7 @@ tap.test('Verbose tests', t => {
       const promise = timer.launchTimer(wait(undefined, timer));
       timer.abort(testName5, ...logs);
       await promise;
-    } catch {
+    } catch(_) {
       t.pass();
     }
     t.end();
@@ -83,7 +83,7 @@ tap.test('Verbose tests', t => {
       const promise = timer.launchTimer(wait(undefined, timer));
       timer.abort(testName6, ...logs);
       await promise;
-    } catch {
+    } catch(_) {
       t.pass();
     }
     t.end();
