@@ -177,9 +177,9 @@ const Timer = class {
       throw e;
     }
   }
-  static getById = getTimerById;
-  static getAll = () => Object.values(TIMERS.get(Timer));
-  static destroyAll = destroyAll;
+  static getById(id, options) { return getTimerById(id, options) };
+  static getAll() { return Object.values(TIMERS.get(Timer)) };
+  static destroyAll(force) { destroyAll(force) };
 };
 
 function verifyTime(timer) {
