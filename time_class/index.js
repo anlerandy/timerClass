@@ -35,7 +35,7 @@ const TIMERS = new WeakMap();
  */
 class Timer {
    /** 
-   * @param {number} time - The time in millisecond before timer termination.
+   * @param {number} [time] - The time in millisecond before timer termination.
    * @param {object} [options] - Options of the timer.
    * @param {string|number} [options.id] - Identify the instance.
    * @param {boolean} [options.forceCreate] - Force creation.
