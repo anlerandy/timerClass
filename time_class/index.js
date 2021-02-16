@@ -24,8 +24,12 @@ const [
 const TIMERS = new WeakMap();
 
 /**
- * Timer class.
+ * Timer Class
+ * @summary Timeout manager for sensible process.
  * @class
+ * 
+ * Manage time limit of a task/process/function and run a callback upon timeout.
+ * Instances can be save inside the Class and retrieved throughout an app.
  * @see {@link https://github.com/anlerandy/timerClass#readme README} 
  * @author anlerandy
  */
