@@ -158,6 +158,12 @@ class Timer {
     return outed.get(this);
   }
 
+  /**
+   * Destroy the instance if it's not running.
+   * @instance
+   * @function destroy
+   * @throws If timer is currently running
+   */
   destroy() {
     if (!this._id) return;
     if (this.inProgress && !this.aborted)
@@ -167,6 +173,11 @@ class Timer {
     _ALL.map(el => el.delete(this));
   }
 
+  /**
+   * Stop the clock of a timer.
+   * @instance
+   * @function done
+   */
   done(...log) {
     if (!this.inProgress) return;
     inProgress.set(this, false);
@@ -175,6 +186,12 @@ class Timer {
     if (_destroy.get(this)) this.destroy();
   }
 
+  /**
+   * Stop the clock of the timer after running the callback or rejecting its promise.
+   * If instance promise is not in a try/catch environment, the app can crash.
+   * @instance
+   * @function abort
+   */
   abort(...log) {
     if (!this.inProgress) return;
     aborted.set(this, true);
@@ -185,6 +202,11 @@ class Timer {
     this.done();
   }
 
+  /**
+   * Reset clock of the timer instance, postponing the timeout.
+   * @instance
+   * @function update
+   */
   update(...log) {
     if (!this._id) return;
     lastUpdate.set(this, new Date());
