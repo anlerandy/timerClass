@@ -1,7 +1,7 @@
 {
   "name": "@anlerandy/timer",
-  "version": "1.0.5",
-  "description": "TimeOut manager for sensible process.",
+  "version": "1.0.7",
+  "description": "Timeout manager for sensible process.",
   "main": "index.js",
   "scripts": {
     "test": "clear && ISPROD=true tap --coverage-report=html ./unit_tests/index.js",
@@ -17,7 +17,10 @@
   },
   "keywords": [
     "timeout",
-    "setTimeout"
+    "setTimeout",
+    "setInterval",
+    "timer",
+    "schedule"
   ],
   "author": "Andy L.",
   "license": "ISC",
@@ -25,9 +28,6 @@
     "url": "https://github.com/anlerandy/timerClass/issues"
   },
   "homepage": "https://github.com/anlerandy/timerClass#readme",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "devDependencies": {
     "@babel/cli": "^7.12.1",
     "@babel/core": "^7.12.3",
@@ -47,6 +47,7 @@
   },
   "files": [
     "index.js",
-    "lib"
+    "lib",
+    "CHANGELOG.md"
   ]
 }
