@@ -23,7 +23,24 @@ const [
 
 const TIMERS = new WeakMap();
 
-const Timer = class {
+/**
+ * Timer class.
+ * @class
+ * @see {@link https://github.com/anlerandy/timerClass#readme README} 
+ * @author anlerandy
+ */
+class Timer {
+   /** 
+   * @param {number} time - The time in millisecond before timer termination.
+   * @param {object} [options] - Options of the timer.
+   * @param {string|number} [options.id] - Identify the instance.
+   * @param {boolean} [options.forceCreate] - Force creation.
+   * @param {boolean} [options.save] - Save the instance in the Class.
+   * @param {boolean} [options.destroy] - Destroy the instance after termination.
+   * 
+   * @throws If options.id is already used.
+   * @throws If options.id is invalid (Not a string or a number).
+   */
   constructor(time, options = {}) {
     const { forceCreate, save = true, destroy = true, verbose = 0, log = console.log } = options;
     let { id } = options;
@@ -51,6 +68,12 @@ const Timer = class {
     this.time = (time || 2 * MINUTE);
   }
 
+  /**
+   * How much time in millisecond to wait before termination.
+   * @public
+   * @instance
+   * @type {number}
+   */
   set time(timestamp) {
     const parsedTime = parseInt(timestamp);
     if (!this._id || `${parsedTime}` !== `${timestamp}`) return;
@@ -67,22 +90,52 @@ const Timer = class {
     return _timestamp.get(this);
   }
 
+  /**
+   * Instance identifier.
+   * @readonly
+   * @instance
+   * @type {number|string}
+   */
   get _id() {
     return _id.get(this);
   }
 
+  /**
+   * Creation Date of the instance.
+   * @readonly
+   * @instance
+   * @type {Date}
+   */
   get createdAt() {
     return createdAt.get(this);
   }
 
+  /**
+   * Last started Date of the instance's clock.
+   * @readonly
+   * @instance
+   * @type {Date}
+   */
   get startedAt() {
     return startedAt.get(this);
   }
 
+  /**
+   * Last update Date of the instance clock.
+   * @readonly
+   * @instance
+   * @type {Date}
+   */
   get lastUpdate() {
     return lastUpdate.get(this);
   }
 
+  /**
+   * Instance running state.
+   * @readonly
+   * @instance
+   * @type {boolean}
+   */
   get inProgress() {
     return inProgress.get(this);
   }
@@ -91,6 +144,12 @@ const Timer = class {
     return _timeId.get(this);
   }
 
+  /**
+   * Instance abortion state.
+   * @readonly
+   * @instance
+   * @type {boolean}
+   */
   get isAborted() {
     return aborted.get(this);
   }
@@ -132,6 +191,17 @@ const Timer = class {
     _log.get(this).update(...log);
   }
 
+  /**
+   * Launch the clock of the instance.
+   * @instance
+   * @function launchTimer
+   * @param {function|Promise} callback - Function to call (or Promise to reject) upon termination.
+   * @param {any} [arg] - Parameters to pass to the callback.
+   * @return {(undefined|Promise)} If callback is a Promise, the method return a Promise.
+   * @throws If timer is already launched.
+   * @throws If instance has been destroyed.
+   * @throws If callback is invalid or missing.
+   */
   launchTimer(callback, arg = 'TimeOut', ...log) {
     if (this.inProgress) throw new Error('Timer already launched.');
     if (!this._id) throw new Error('Timer is being deleted.');
@@ -163,6 +233,18 @@ const Timer = class {
     _log.get(this).log(...args);
   }
 
+  /**
+   * Launch the clock of the instance.
+   * @instance
+   * @async
+   * @function launchTimerPromise
+   * @param {Promise} promise - Promise to await.
+   * @param {any} [arg] - Parameters to pass to the promise.reject.
+   * @return {Promise} Return a promise that wraps the one passed.
+   * @throws If timer is already launched.
+   * @throws If instance has been destroyed.
+   * @throws If promise is invalid or missing.
+   */
   async launchTimerPromise(promise, arg, ...log) {
     if (this.inProgress) throw new Error('Timer already launched.');
     if (!(promise instanceof Promise)) throw new TypeError('`First argument` must be a Promise.');
@@ -177,8 +259,33 @@ const Timer = class {
       throw e;
     }
   }
+
+  /**
+   * Retrieve a timer instance by its id. Can create one if none were found.
+   * @static
+   * @function getById
+   * @param {number|string} id - Identifier of the instance to get or create.
+   * @param {object} [options] - See {@link Timer} options property for other options.
+   * @param {boolean} [options.createOne] - Create an instance if none were found. No other options matter if false.
+   * @param {number} [options.time] - The time in millisecond before timer termination for a new instance.
+   * @return {Timer|undefined} Return timer instance or undefined.
+   */
   static getById(id, options) { return getTimerById(id, options) };
+
+  /**
+   * Retrieve all timer instances.
+   * @static
+   * @function getAll
+   * @return {array<Timer>} Always return an Array.
+   */
   static getAll() { return Object.values(TIMERS.get(Timer)) };
+
+  /**
+   * Destroys all instances saved in Class. Can force termination before destroy.
+   * @static
+   * @function destroyAll
+   * @param {boolean} force - Determines if method should force termination.
+   */
   static destroyAll(force) { destroyAll(force) };
 };
 

@@ -7,3 +7,4 @@ package-lock.json
 unit_tests
 .github
 .github/workflows
+out
