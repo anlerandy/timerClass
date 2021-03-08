@@ -64,7 +64,7 @@ function tests(t) {
         timer._log("After a destroy log.");
         t.fail();
       } catch (e) {
-        t.equal(e.message, 'The timer is being destroyed. No log possible.');
+        t.equal(e.message, 'Timer is being deleted.');
       }
     }
     t.end()

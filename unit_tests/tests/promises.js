@@ -39,16 +39,28 @@ tap.test('Promise tests', async t => {
     const timer = new Timer(2 * SECOND);
     const promise = wait(undefined, timer);
     return timer.launchTimer(promise)
-      .then(_ => t.pass('Good, it succeed.') && t.end())
-      .catch(_ => t.fail('It failed...?!') && t.end());
+      .then(_ => {
+        t.pass('Good, it succeed.');
+        t.end();
+      })
+      .catch(_ => {
+        t.fail('It failed...?!');
+        t.end();
+      });
   });
   
   t.test('Reject Promise due to promise failure', async t => {
     const timer = new Timer(2 * SECOND);
     const promise = waitFail(undefined, timer);
-    return timer.launchTimer(promise)
-      .then(_ => t.fail('It Succeed...?!') && t.end())
-      .catch(_ => t.pass('Good, it Failed.') && t.end());
+    return timer.launchTimerPromise(promise)
+      .then(_ => {
+        t.fail('It Succeed...?!');
+        t.end();
+      })
+      .catch(_ => {
+        t.pass('Good, it Failed.');
+        t.end();
+      });
   });
   
   t.test('Reject Promise due to promise failure with pass error log', async t => {

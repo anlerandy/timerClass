@@ -1,4 +1,8 @@
-const { initLogger, isFunction, validateId } = require('./helpers');
+const { initLogger, isFunction, validateId, raiseError } = require('./helpers');
+
+const ALREADYRUN = 'Timer already launched.';
+const THREADSCOPE = 'Unexpected launch of timer.';
+const BEINGDELETE = 'Timer is being deleted.';
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
@@ -42,8 +46,7 @@ class Timer {
    * @param {boolean} [options.save] - Save the instance in the Class.
    * @param {boolean} [options.destroy] - Destroy the instance after termination.
    * 
-   * @throws If options.id is already used.
-   * @throws If options.id is invalid (Not a string or a number).
+   * @throws If options.id is already used or invalid.
    */
   constructor(time, options = {}) {
     const { forceCreate, save = true, destroy = true, verbose = 0, log = console.log } = options;
@@ -53,7 +56,7 @@ class Timer {
     try {
       id = getId(id);
       if (!id)
-        throw new Error('Timer already exist. To retrieve the existing one, please use `getById` Method.');
+        raiseError('Timer already exist. To retrieve the existing one, please use `getById` Method.');
     } catch (e) {
       if (!forceCreate) throw e;
       id = getId();
@@ -169,9 +172,9 @@ class Timer {
    * @throws If timer is currently running
    */
   destroy() {
-    if (!this._id) return;
+    if (!(this || {})._id) return;
     if (this.inProgress && !this.aborted)
-      throw new Error('Please abort() or done() the Timer before destroying it.');
+      raiseError('Please abort() or done() the Timer before destroying it.');
     const { [this._id]: timer, ...others } = TIMERS.get(Timer);
     TIMERS.set(Timer, others);
     _ALL.map(el => el.delete(this));
@@ -183,7 +186,7 @@ class Timer {
    * @function done
    */
   done(...log) {
-    if (!this.inProgress) return;
+    if (!(this || {}).inProgress) return;
     inProgress.set(this, false);
     clearTimeout(this._timeId);
     if (!this.isAborted) _log.get(this).done(...log);
@@ -197,7 +200,7 @@ class Timer {
    * @function abort
    */
   abort(...log) {
-    if (!this.inProgress) return;
+    if (!(this || {}).inProgress) return;
     aborted.set(this, true);
     const callback = _callback.get(this);
     const arg = _arg.get(this);
@@ -212,7 +215,7 @@ class Timer {
    * @function update
    */
   update(...log) {
-    if (!this._id) return;
+    if (!(this || {}).inProgress) return;
     lastUpdate.set(this, new Date());
     _log.get(this).update(...log);
   }
@@ -229,8 +232,9 @@ class Timer {
    * @throws If callback is invalid or missing.
    */
   launchTimer(callback, arg = 'TimeOut', ...log) {
-    if (this.inProgress) throw new Error('Timer already launched.');
-    if (!this._id) throw new Error('Timer is being deleted.');
+    if (!this) raiseError(THREADSCOPE);
+    if (this.inProgress) raiseError(ALREADYRUN);
+    if (!this._id) raiseError(BEINGDELETE);
     if (callback instanceof Promise) return this.launchTimerPromise(callback, arg, ...log);
     if (!callback || !isFunction(callback))
       throw new TypeError(callback ? 'The passed callback is not a function.' : 'Callback is required.');
@@ -240,12 +244,12 @@ class Timer {
     outed.set(this, false);
     inProgress.set(this, true);
     startedAt.set(this, new Date());
-    _timeId.set(this, setTimeout(this._tick, this.time, this));
+    _timeId.set(this, setTimeout(this._tick, this._time, this));
     _log.get(this).launch(...log);
   }
 
   _tick(self) {
-    if (!(self instanceof Timer)) throw new Error('Tick is being call without instance of Timer.');
+    if (!(self instanceof Timer)) raiseError('Tick is being call without instance of Timer.');
     clearTimeout(self._timeId);
     verifyTime(self);
     if (self.inProgress) {
@@ -255,7 +259,7 @@ class Timer {
   }
 
   _log(...args) {
-    if (!this._id) throw new Error('The timer is being destroyed. No log possible.');
+    if (!this._id) raiseError(BEINGDELETE);
     _log.get(this).log(...args);
   }
 
@@ -272,7 +276,8 @@ class Timer {
    * @throws If promise is invalid or missing.
    */
   async launchTimerPromise(promise, arg, ...log) {
-    if (this.inProgress) throw new Error('Timer already launched.');
+    if (!this) raiseError(THREADSCOPE);
+    if (this.inProgress) raiseError(ALREADYRUN);
     if (!(promise instanceof Promise)) throw new TypeError('`First argument` must be a Promise.');
     const self = this;
     const timerPromise = new Promise((_, reject) => self.launchTimer(reject, arg, ...log));
@@ -302,7 +307,7 @@ class Timer {
    * Retrieve all timer instances.
    * @static
    * @function getAll
-   * @return {array<Timer>} Always return an Array.
+   * @return {Array<Timer>} Always return an Array.
    */
   static getAll() { return Object.values(TIMERS.get(Timer)) };
 

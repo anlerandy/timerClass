@@ -12,13 +12,15 @@ const _array = [
   SECOND
 ];
 
-const _wrongArray = [ ..._array ];
-_wrongArray[0] = null;
+const _wrongArray = _array.map(_ => null);
 
 const wait = (array = _array, timer, ...logs) => array.reduce(async (acc, timestamp) => {
   const res = await acc;
+  if (timer.startedAt && !timer.inProgress) { return res; }
   await sleep(timestamp);
-  if (timer) timer.update(...logs);
+  if (timer) {
+    timer.update(...logs);
+  }
   return [ ...res, timestamp ];
 }, []);
 

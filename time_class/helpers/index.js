@@ -1,4 +1,4 @@
-const initLogger = require('./log');
+module.exports = { isFunction, validateId, initLogger: require('./log'), raiseError };
 
 function validateId(id) { 
   if (typeof id !== 'string' && typeof id !== 'number') throw new TypeError('`_id` must be a String or a Number.');
@@ -9,4 +9,6 @@ function isFunction(fn) {
   return {}.toString.call(fn) === '[object Function]'
 };
 
-module.exports = { isFunction, validateId, initLogger };
+function raiseError(message) {
+  throw new Error(message);
+}
