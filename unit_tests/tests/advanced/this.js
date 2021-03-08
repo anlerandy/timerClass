@@ -9,7 +9,7 @@ const toThread = (fn, arg, time = SECOND / 2) =>
       try {
         await fn(arg);
         res(true);
-      } catch {
+      } catch(_) {
         rej(false);
       }
     }, time);
@@ -19,7 +19,7 @@ const toProtectedThread = async (fn, arg, time = SECOND / 2) => {
   try {
     await toThread(fn, arg, time);
     throw new Error('It succeed unexpectedly...');
-  } catch {};
+  } catch(_) {};
 };
 
 const waiters = new Array(MINUTE).fill(SECOND / 2);
