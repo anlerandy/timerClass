@@ -15,7 +15,7 @@ const task = require('./my_asynchronous_function');
 const Timer = require('@anlerandy/timer');
 
 const promise = task();
-const result = await new Timer().launchTimer(promise);
+const result = await new Timer(60000).launchTimer(promise);
 ```
 
 <details>
@@ -67,11 +67,12 @@ const result = await new Timer().launchTimer(promise);
 
 # Class
 
-## **new Timer(time?, options?)**
+## **new Timer([time](https://github.com/anlerandy/timerClass/blob/feature/smaller-readme/documentations/OPTIONS.md#time)?: number, [options](https://github.com/anlerandy/timerClass/blob/feature/smaller-readme/documentations/OPTIONS.md#options)?: object)**
 
-Instanciate a timer.
+Instanciate a timer set.  
+`time` parameter is in millisecond.
 
-## **Timer.getById(id, options?)**
+## **Timer.getById([id](https://github.com/anlerandy/timerClass/blob/feature/smaller-readme/documentations/OPTIONS.md#id): string, [options](https://github.com/anlerandy/timerClass/blob/feature/smaller-readme/documentations/OPTIONS.md#options)?: object)**
 
 Return an instance of Timer by `id`.  
 Unless `options.createOne` is `true`, return `undefined` if no timer was found.  
@@ -86,7 +87,7 @@ Could `throw` if timer creation fails.
 
 Return an array of all saved timer instances.
 
-## **Timer.destroyAll(force?)**
+## **Timer.destroyAll(force?: boolean)**
 
 Delete all saved timer instances that are not running.
 
@@ -118,7 +119,7 @@ console.log(date);
 
 # Instance API
 
-## **timer.launchTimer(callback, argument?)**
+## **timer.launchTimer(callback: function | promise, argument?)**
 
 Run the timer.  
 If `callback` argument is a function, it returns `undefined`.  
