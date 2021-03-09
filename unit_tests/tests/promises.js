@@ -7,9 +7,8 @@ const Timer = require(isProd ? '../../time_class' : '../../index');
 tap.test('Promise tests', async t => {
   t.jobs = 6;
   t.test('Reject Promise due to timeout', async t => {
-    const timer = new Timer(10);
-    const promise = wait(undefined, timer);
-    return timer.launchTimer(promise)
+    const promise = wait(undefined);
+    return new Timer(10).launchTimer(promise)
       .then(_ => {
         t.fail('It Succeed...?!');
         t.end();
