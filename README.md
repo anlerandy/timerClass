@@ -67,15 +67,15 @@ const result = await new Timer(60000).launchTimer(promise);
 
 # Class
 
-## **new Timer([time](https://github.com/anlerandy/timerClass/blob/blob/master/documentations/OPTIONS.md#time)?: number, [options](https://github.com/anlerandy/timerClass/blob/blob/master/documentations/OPTIONS.md#options)?: object)**
+## **new Timer([time](https://github.com/anlerandy/timerClass/blob/master/documentations/OPTIONS.md#time)?: number, [options](https://github.com/anlerandy/timerClass/blob/master/documentations/OPTIONS.md#options)?: object)**
 
-Instanciate a timer set.  
+Instanciate a timer set.
 `time` parameter is in millisecond.
 
-## **Timer.getById([id](https://github.com/anlerandy/timerClass/blob/blob/master/documentations/OPTIONS.md#id): string, [options](https://github.com/anlerandy/timerClass/blob/blob/master/documentations/OPTIONS.md#options)?: object)**
+## **Timer.getById([id](https://github.com/anlerandy/timerClass/blob/master/documentations/OPTIONS.md#id): string, [options](https://github.com/anlerandy/timerClass/blob/master/documentations/OPTIONS.md#options)?: object)**
 
-Return an instance of Timer by `id`.  
-Unless `options.createOne` is `true`, return `undefined` if no timer was found.  
+Return an instance of Timer by `id`.
+Unless `options.createOne` is `true`, return `undefined` if no timer was found.
 Could `throw` if timer creation fails.
 
 ```javascript
@@ -93,7 +93,7 @@ Delete all saved timer instances that are not running.
 
 # Instance properties
 
-Only `time` property can be set (`timer.time = 2000`). Will not be updated if value is not a number.  
+Only `time` property can be set (`timer.time = 2000`). Will not be updated if value is not a number.
 Changing `time` while Timer is running can result in a timeout.
 
 | Property      |   Type    |   Default   | Description                          |
@@ -121,27 +121,28 @@ console.log(date);
 
 ## **timer.launchTimer(callback: function | promise, argument?)**
 
-Run the timer.  
-If `callback` argument is a function, it returns `undefined`.  
+Run the timer.
+If `callback` argument is a function, it returns `undefined`.
 If it's a `Promise`, it will return a `Promise`.
 
 ## **timer.done()**
 
-Terminate timer without triggering `callback` or `promise.reject`.  
+Terminate timer without triggering `callback` or `promise.reject`.
 If `destroy` option was `true` on instanciation, deletes the timer.
 
 ## **timer.destroy()**
 
-Destroy the instance.  
-Throw an error if instance is not terminated via `_.done()` or `_.abort()`.  
+Destroy the instance.
+Throw an error if instance is not terminated via `_.done()` or `_.abort()`.
 Automaticaly called after termination if `destroy` option was set as `true`.
 
 ## **timer.update()**
 
-Reset the clock of timer.  
+Reset the clock of timer.
 Useful if there is multiple task to be done, and each should be under the same timer.
 
 ## **timer.abort()**
 
-Run `callback` or `promise.reject`. Then, work as `timer.done()`.  
+Run `callback` or `promise.reject`. Then, work as `timer.done()`.
 Can be used to terminate a task if the said task verify if timer is aborted.
+````
