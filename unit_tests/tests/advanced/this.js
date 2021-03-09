@@ -28,7 +28,7 @@ function tests(t) {
   t.jobs = 1;
 
   t.test('Method in sub thread', async t => {
-    const timer = new Timer(SECOND, { destroy: false });
+    const timer = new Timer(2 * SECOND, { destroy: false });
     const promise = timer.launchTimer(wait(waiters, timer));
     try {
       await toThread(timer.update);
