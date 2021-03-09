@@ -30,7 +30,7 @@ function tests(t) {
       t.fail('_tick did not trigger an error.');
     } catch (e) {
       const msg = e.message || e;
-      t.equal(msg, 'Tick is being call without instance of Timer.');
+      t.equal(msg, 'Tick is being called without instance of Timer.');
     }
     try {
       timer.abort();

@@ -39,14 +39,14 @@ const TIMERS = new WeakMap();
  */
 class Timer {
    /** 
-   * @param {number} [time] - The time in millisecond before timer termination.
+   * @param {number} [time=120000] - The time in millisecond before timer termination.
    * @param {object} [options] - Options of the timer.
    * @param {string|number} [options.id] - Identify the instance.
-   * @param {boolean} [options.forceCreate] - Force creation.
-   * @param {boolean} [options.save] - Save the instance in the Class.
-   * @param {boolean} [options.destroy] - Destroy the instance after termination.
+   * @param {boolean} [options.forceCreate=false] - Force creation.
+   * @param {boolean} [options.save=true] - Save the instance in the Class.
+   * @param {boolean} [options.destroy=true] - Destroy the instance after termination.
    * 
-   * @throws If options.id is already used or invalid.
+   * @throws If options.id is already used or invalid and forceCreate is false.
    */
   constructor(time, options = {}) {
     const { forceCreate, save = true, destroy = true, verbose = 0, log = console.log } = options;
@@ -55,15 +55,20 @@ class Timer {
 
     try {
       id = getId(id);
-      if (!id)
+      if (!id) {
         raiseError('Timer already exist. To retrieve the existing one, please use `getById` Method.');
+      }
     } catch (e) {
-      if (!forceCreate) throw e;
+      if (!forceCreate) {
+        throw e;
+      }
       id = getId();
     }
 
     _id.set(this, id);
-    if (save) TIMERS.set(Timer, { ...TIMERS.get(Timer), [this._id]: this });
+    if (save) {
+      TIMERS.set(Timer, { ...TIMERS.get(Timer), [this._id]: this });
+    }
 
     lastUpdate.set(this, new Date());
     createdAt.set(this, new Date());
@@ -249,7 +254,7 @@ class Timer {
   }
 
   _tick(self) {
-    if (!(self instanceof Timer)) raiseError('Tick is being call without instance of Timer.');
+    if (!(self instanceof Timer)) raiseError('Tick is being called without instance of Timer.');
     clearTimeout(self._timeId);
     verifyTime(self);
     if (self.inProgress) {

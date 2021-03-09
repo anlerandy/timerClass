@@ -5,3 +5,4 @@ package-lock.json
 lib
 .vscode
 out
+npm-debug.log

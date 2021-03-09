@@ -8,3 +8,4 @@ unit_tests
 .github
 .github/workflows
 out
+npm-debug.log
