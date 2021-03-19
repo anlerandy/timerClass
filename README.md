@@ -65,12 +65,12 @@ const result = await new Timer(60000).launchTimer(promise);
 
 # Class
 
-## **new Timer([time](./documentations/OPTIONS.md#time)?: number, [options](./documentations/OPTIONS.md#options)?: object)**
+## **new Timer([time](https://github.com/anlerandy/timerClass/blob/master/documentations/OPTIONS.md#time)?: number, [options](https://github.com/anlerandy/timerClass/blob/master/documentations/OPTIONS.md#options)?: object)**
 
 Instanciate a timer set.  
 `time` parameter is in millisecond.
 
-## **Timer.getById([id](./documentations/OPTIONS.md#id): string, [options](./documentations/OPTIONS.md#options)?: object)**
+## **Timer.getById([id](https://github.com/anlerandy/timerClass/blob/master/documentations/OPTIONS.md#id): string, [options](https://github.com/anlerandy/timerClass/blob/master/documentations/OPTIONS.md#options)?: object)**
 
 Return an instance of Timer by `id`.  
 Unless `options.createOne` is `true`, return `undefined` if no timer was found.  
