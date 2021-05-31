@@ -19,7 +19,7 @@ tap.test('Save & Destroy tests', async t => {
     const saved = Timer.getById('saved', { createOne: false });
     if (!saved) t.fail('The timer was not saved?!');
     timer.destroy();
-    if (timer._id) t.fail('Should not have its `_id`.');
+    if (timer.getId()) t.fail('Should not have its `_id`.');
     else {
       const saved = Timer.getById('saved', { createOne: false });
       if (saved) t.fail('We should not find it.');
@@ -60,7 +60,7 @@ tap.test('Save & Destroy tests', async t => {
     const timer = new Timer(SECOND, { save: false });
     timer.launchTimer(console.log);
     timer.done();
-    if (timer._id) t.fail('Still has its `_id`.');
+    if (timer.getId()) t.fail('Still has its `_id`.');
     else t.pass('Done correctly destroyed the timer.');
     t.end();
   });
@@ -68,7 +68,7 @@ tap.test('Save & Destroy tests', async t => {
   t.test('Done does not destroy', t => {
     const timer = new Timer(SECOND, { destroy: false });
     timer.done();
-    if (!timer._id) t.fail('Timer has been destroyed');
+    if (!timer.getId()) t.fail('Timer has been destroyed');
     else t.pass('Done did not destroy the timer.');
     timer.destroy();
     t.end();

@@ -1,3 +1,5 @@
+module.exports = initLogger;
+
 const DefaultV = { UPDATE: 'Updated', DONE: 'Done', ABORT: 'Aborted', LAUNCH: 'Launched' };
 
 function formatHour(date = new Date()) {
@@ -17,7 +19,10 @@ function formatDate(date) {
   return `${dateString} ${hours}`;
 }
 
-function getVerbose({args, log, level, timer: { _id, lastUpdate, time }}) {
+function getVerbose({ args, log, level, timer }) {
+  const _id = timer.getId();
+  const lastUpdate = timer.getLastUpdate();
+  const time = timer.getTime();
   const msg = args.length ? args : [DefaultV[log]];
   const array = [...msg].filter(Boolean);
   const addLvl = parseInt(level / 10);
@@ -83,5 +88,3 @@ function launchLog(logFn, level, timer) {
     defaultLog(logFn)(...args);
   }
 }
-
-module.exports = initLogger;

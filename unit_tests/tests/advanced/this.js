@@ -46,6 +46,7 @@ function tests(t) {
       await promise;
     } catch (e) {
       timer.done();
+      console.error({ message: e.message || e });
       t.fail(e.message || e);
     }
     timer.done();

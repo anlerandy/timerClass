@@ -16,7 +16,7 @@ const _wrongArray = _array.map(_ => null);
 
 const wait = (array = _array, timer, ...logs) => array.reduce(async (acc, timestamp) => {
   const res = await acc;
-  if (timer && timer.startedAt && !timer.inProgress) {
+  if (timer && timer.getStartedAt() && !timer.getInProgress()) {
     return res;
   }
   await sleep(timestamp);

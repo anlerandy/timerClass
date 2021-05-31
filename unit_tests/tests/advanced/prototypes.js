@@ -9,10 +9,10 @@ function tests(t) {
   t.test('Calling _tick', async t => {
     const timer = new Timer(2 * SECOND, { id: 'tick' });
     const promise = timer.launchTimer(wait(undefined, timer));
-    const timeout = timer._timeId;
+    const timeout = timer.getTimeId();
     await sleep(5);
     timer._tick(timer);
-    const timeout2 = timer._timeId;
+    const timeout2 = timer.getTimeId();
     if (timeout._destroyed && timeout._idleStart !== timeout2._idleStart) t.pass('_tick worked.');
     else t.fail('_tick did not clearTimeout.');
     try {

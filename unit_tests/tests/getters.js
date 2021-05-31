@@ -9,7 +9,7 @@ tap.test('Getters test', t => {
   t.test('Get CreatedAt', t => {
     const timer = new Timer();
     const now = new Date();
-    const createdAt = timer.createdAt;
+    const createdAt = timer.getCreatedAt();
     const nowV = now.valueOf();
     const createV = createdAt.valueOf();
     if (nowV - 10 <= createV && createV <= nowV + 10) t.pass();
@@ -21,7 +21,7 @@ tap.test('Getters test', t => {
     const timer = new Timer(SECOND);
     timer.launchTimer(() => {});
     const now = new Date();
-    const startedAt = timer.startedAt;
+    const startedAt = timer.getStartedAt();
     const nowV = now.valueOf();
     const startV = startedAt.valueOf();
     if (nowV - 10 <= startV && startV <= nowV + 10) t.pass();
@@ -31,7 +31,7 @@ tap.test('Getters test', t => {
   
   t.test('Get startedAt Not started', t => {
     const timer = new Timer();
-    const startedAt = timer.startedAt;
+    const startedAt = timer.getStartedAt();
     if (!startedAt) t.pass();
     else t.fail();
     t.end();
@@ -45,7 +45,7 @@ tap.test('Getters test', t => {
       t.fail('It succeed...?!');
     } catch (e) {
       const msg = e.message || e;
-      if (timer.isSelfAborted) t.equal(msg, 'TimeOut');
+      if (timer.getIsSelfAborted()) t.equal(msg, 'TimeOut');
       else t.fail('isSelfAborted value should be `true`.');
     }
     t.end();
@@ -60,10 +60,11 @@ tap.test('Getters test', t => {
       t.fail('It succeed...?!');
     } catch (e) {
       const msg = e.message || e;
-      if (!timer.isSelfAborted && timer.isAborted) t.equal(msg, 'TimeOut');
+      const isSelfAborted = timer.getIsSelfAborted();
+      if (!isSelfAborted && timer.getIsAborted()) t.equal(msg, 'TimeOut');
       else {
-        const field = timer.isSelfAborted ? 'isSelfAborted' : 'isAborted';
-        const value = timer.isSelfAborted ? 'false' : 'true';
+        const field = isSelfAborted ? 'isSelfAborted' : 'isAborted';
+        const value = isSelfAborted ? 'false' : 'true';
         t.fail(`${field} value should be \`${value}\`.`);
       }
     }
@@ -72,14 +73,14 @@ tap.test('Getters test', t => {
   
   t.test('Get time', async t => {
     const timer = new Timer(SECOND);
-    timer.time = 2 * SECOND;
-    timer.time = 'wuoifne';
-    t.equal(timer.time, 2 * SECOND);
-    timer.time = '23421wuoifne';
-    t.equal(timer.time, 2 * SECOND);
+    timer.setTime(2 * SECOND);
+    timer.setTime('wuoifne');
+    t.equal(timer.getTime(), 2 * SECOND);
+    timer.setTime('23421wuoifne');
+    t.equal(timer.getTime(), 2 * SECOND);
     timer.destroy();
-    timer.time = SECOND;
-    t.equal(timer.time, undefined);
+    timer.setTime(SECOND);
+    t.equal(timer.getTime(), undefined);
     t.end();
   });
 

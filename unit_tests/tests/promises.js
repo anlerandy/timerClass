@@ -71,7 +71,7 @@ tap.test('Promise tests', async t => {
       .catch(error => {
         const msg = error && error.message;
         if (!msg) t.fail('Why there is no error?');
-        else t.notEqual(msg, errorMsg);
+        else t.not(msg, errorMsg);
         t.end();
       });
   });
@@ -82,7 +82,7 @@ tap.test('Promise tests', async t => {
     const promise = timer.launchTimer(wait(undefined, timer), errorMsg);
     await sleep(SECOND / 2);
     try {
-      timer.time = SECOND / 4;
+      timer.setTime(SECOND / 4);
       await promise;
       t.fail('Should have timeout...');
     } catch (e) {

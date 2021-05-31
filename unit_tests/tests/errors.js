@@ -72,7 +72,7 @@ tap.test('Errors feedBack tests', t => {
   });
 
   t.test('Destroy running timer', t => {
-    const timer = new Timer(SECOND);
+    const timer = new Timer(2 * SECOND);
     timer.launchTimer(() => {});
     try {
       timer.destroy();
