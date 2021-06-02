@@ -91,28 +91,37 @@ Delete all saved timer instances that are not running.
 
 # Instance properties
 
-Only `time` property can be set (`timer.time = 2000`). Will not be updated if value is not a number.  
-Changing `time` while Timer is running can result in a timeout.
+## Get instance properties
 
-| Property      |   Type    |   Default   | Description                          |
-| ------------- | :-------: | :---------: | ------------------------------------ |
-| \_id          | `String`  |     N/A     | `id` of the instance                 |
-| createdAt     |  `Date`   |     N/A     | Creation date                        |
-| startedAt     |  `Date`   | `undefined` | Launch date                          |
-| lastUpdate    |  `Date`   | `createdAt` | Last update (i.e. last postpone)     |
-| inProgress    | `boolean` |   `false`   | True if running                      |
-| isAborted     | `boolean` |   `false`   | True if cancelled                    |
-| isSelfAborted | `boolean` |   `false`   | True if the timer cancelled its task |
-| time          | `Number`  |  `120000`   | Time to wait before timeout (ms)     |
+| Property           |   Return  |   Default   | Description                          |
+| ------------------ | :-------: | :---------: | ------------------------------------ |
+| getId()            | `String`  |     N/A     | `id` of the instance                 |
+| getCreatedAt()     |  `Date`   |     N/A     | Creation date                        |
+| getStartedAt()     |  `Date`   | `undefined` | Launch date                          |
+| getLastUpdate()    |  `Date`   | `createdAt` | Last update (i.e. last postpone)     |
+| getInProgress()    | `boolean` |   `false`   | True if running                      |
+| getIsAborted()     | `boolean` |   `false`   | True if cancelled                    |
+| getIsSelfAborted() | `boolean` |   `false`   | True if the timer cancelled its task |
+| getTime()          | `Number`  |  `120000`   | Time to wait before timeout (ms)     |
 
 All properties are `undefined` if the instance is being deleted.
 
 ```js
 const timer = new Timer();
 timer.destroy();
-const date = timer.createdAt;
+const date = timer.getCreatedAt();
 console.log(date);
 // output: undefined
+```
+
+## Set instance properties
+Only `time` can be updated thanks to `Timer.prototype.setTime(timestamp)`;  
+
+```js
+const timer = new Timer().setTime(2000);
+const time = timer.getTime();
+console.log(time);
+// output: 2000
 ```
 
 # Instance API
