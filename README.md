@@ -1,4 +1,4 @@
-# Timer v^1.0.5
+# Timer v2.0.0
 
 Add a timer to a promise by wrapping it.
 
