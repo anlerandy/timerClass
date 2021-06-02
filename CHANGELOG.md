@@ -5,6 +5,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.0] - Ongoing
 
+### TODO
+- launchers return instance
+- Save the promise result of launchPromiseTimer
+- Add getResult() Async function to retrieve saved result
+- Add redis support (?) With Webhook
+
 ### Changed
 
 - Readme.

@@ -217,6 +217,7 @@ function destroy() {
   const { [this.getId()]: timer, ...others } = TIMERS.get(Timer);
   TIMERS.set(Timer, others);
   _ALL.map(el => el.delete(this));
+  return this;
 }
 
 /**
@@ -229,7 +230,8 @@ function done(...log) {
   inProgress.set(this, false);
   clearTimeout(this.getTimeId());
   if (!this.getIsAborted()) _log.get(this).done(...log);
-  if (_destroy.get(this)) this.destroy();
+  if (_destroy.get(this)) return this.destroy();
+  return this;
 }
 
 /**
@@ -245,7 +247,7 @@ function abort(...log) {
   const arg = _arg.get(this);
   _log.get(this).abort(...log);
   callback(arg);
-  this.done();
+  return this.done();
 }
 
 /**
