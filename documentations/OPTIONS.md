@@ -54,6 +54,6 @@ Useful as `false` to see if a similar task is already running.
 ```javascript
 function isRunning(id) {
   const timer = Timer.getById(id, { createOne: false });
-  return !!timer?.inProgress;
+  return !!timer?.getInProgress();
 }
 ```
