@@ -1,13 +1,13 @@
 {
   "name": "@anlerandy/timer",
-  "version": "2.0.0",
+  "version": "2.0.0-alpha",
   "description": "Timeout manager for sensible process.",
   "main": "index.js",
   "scripts": {
     "test": "clear && ISPROD=true node ./node_modules/tap/bin/run.js --coverage-report=html ./unit_tests/index.js",
     "buildtest": "npm run build && clear && ISPROD=false node ./node_modules/tap/bin/run.js --coverage-report=html ./unit_tests/index.js",
-    "memtest": "clear && ISPROD=true node --max_old_space_size=6 ./unit_tests/tests/memory.js",
-    "buildmemtest": "npm run build && clear && ISPROD=false node --max_old_space_size=6 ./unit_tests/tests/memory.js",
+    "memtest": "clear && ISPROD=true node --expose-gc --inspect --max_old_space_size=7 ./unit_tests/tests/memory.js",
+    "buildmemtest": "npm run build && clear && ISPROD=false node --expose-gc --inspect --max_old_space_size=7 ./unit_tests/tests/memory.js",
     "build": "node ./node_modules/@babel/cli/bin/babel.js time_class -d lib",
     "prepublish": "npm run build"
   },
