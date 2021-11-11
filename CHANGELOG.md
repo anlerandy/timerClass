@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### TODO
 - launchers return instance
+- time (timestamp) larger than INT32 handler
 - Save the promise result of launchPromiseTimer
 - Add getResult() Async function to retrieve saved result
 - Add redis support (?) With Webhook
@@ -15,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Readme.
 - Timer class to Javascript functional class.
+- Callback can be `AsyncFunction`
 
 ## [1.0.8] - 2021-03-19
 

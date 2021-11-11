@@ -32,6 +32,7 @@ const BEINGDELETE = 'Timer is being deleted.';
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
 const MARGIN = 100;
+const INT32 = 2147483647;
 
 const _ALL = new Array(14).fill(undefined).map(_ => new WeakMap());
 const [
