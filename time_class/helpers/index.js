@@ -6,7 +6,10 @@ function validateId(id) {
 }
 
 function isFunction(fn) {
-  return {}.toString.call(fn) === '[object Function]'
+  return (
+    {}.toString.call(fn) === '[object Function]' ||
+    {}.toString.call(fn) === '[object AsyncFunction]'
+  );
 };
 
 function raiseError(message) {
