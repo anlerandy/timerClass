@@ -1,5 +1,6 @@
 const tap = require('tap');
 const { SECOND, wait } = require('../helpers/wait');
+const sleep = require('../helpers/sleep');
 const isProd = process.env.ISPROD === 'true';
 const Timer = require(isProd ? '../../time_class' : '../../index');
 
@@ -7,7 +8,7 @@ const logs = ['A String', { log:'An object' }, ['An Array']];
 
 tap.test('Verbose tests', t => {
 
-  t.jobs = 7;
+  t.jobs = 8;
 
   const testName0 = 'Launch with verbose (async)';
   t.test(testName0, async t => {
@@ -58,16 +59,33 @@ tap.test('Verbose tests', t => {
   });
 
   const testName5 = 'Wrong Logger';
-  t.test(testName5, async t => {
+
+  t.test(testName5, async (t) => {
     try {
       const wrongLogger = (...args) => {
         throw args;
-      }
+      };
       const timer = new Timer(SECOND, { log: wrongLogger });
       const promise = timer.launchTimer(wait(undefined, timer));
       timer.abort(testName5, ...logs);
       await promise;
-    } catch(_) {
+    } catch (_) {
+      t.pass();
+    }
+    t.end();
+  });
+
+  t.test(testName5 + ' (async)', async (t) => {
+    try {
+      const wrongLogger = async (...args) => {
+        await sleep(200);
+        throw args;
+      };
+      const timer = new Timer(SECOND, { log: wrongLogger });
+      const promise = timer.launchTimer(wait(undefined, timer));
+      timer.abort(testName5, ...logs);
+      await promise;
+    } catch (_) {
       t.pass();
     }
     t.end();

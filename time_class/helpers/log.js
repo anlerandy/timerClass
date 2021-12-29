@@ -47,10 +47,10 @@ function initLogger(logFn, level, timer) {
 }
 
 function defaultLog(logFn, level, timer) {
-  return function (...args) {
+  return async function (...args) {
     try {
       if (timer) args = getVerbose({ args, level, timer });
-      logFn(...args);
+      await logFn(...args);
     } catch (e) {
       console.error('TIMER: Your logger is not working properly.', e);
     }
