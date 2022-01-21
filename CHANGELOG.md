@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Timer class to Javascript functional class.
 - Callback can be `AsyncFunction`
 
+### Fixed
+
+- Async custom logger not protected.
+
 ## [1.0.8] - 2021-03-19
 
 ### Added
