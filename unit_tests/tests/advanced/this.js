@@ -1,6 +1,6 @@
 const sleep = require('../../helpers/sleep');
-const isProd = process.env.ISPROD === 'true';
-const Timer = require(isProd ? '../../../time_class' : '../../../index');
+
+const Timer = require('../../timer');
 const { SECOND, MINUTE, wait } = require('../../helpers/wait');
 
 const toThread = (fn, arg, time = SECOND / 2) =>
@@ -9,7 +9,7 @@ const toThread = (fn, arg, time = SECOND / 2) =>
       try {
         await fn(arg);
         res(true);
-      } catch(_) {
+      } catch (_) {
         rej(false);
       }
     }, time);
@@ -19,7 +19,7 @@ const toProtectedThread = async (fn, arg, time = SECOND / 2) => {
   try {
     await toThread(fn, arg, time);
     throw new Error('It succeed unexpectedly...');
-  } catch(_) {};
+  } catch (_) {}
 };
 
 const waiters = new Array(MINUTE).fill(SECOND / 2);
@@ -27,7 +27,7 @@ const waiters = new Array(MINUTE).fill(SECOND / 2);
 function tests(t) {
   t.jobs = 1;
 
-  t.test('Method in sub thread', async t => {
+  t.test('Method in sub thread', async (t) => {
     const timer = new Timer(2 * SECOND, { destroy: false });
     const promise = timer.launchTimer(wait(waiters, timer));
     try {

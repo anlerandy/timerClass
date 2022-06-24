@@ -1,7 +1,7 @@
 const tap = require('tap');
 const { SECOND, wait } = require('../helpers/wait');
-const isProd = process.env.ISPROD === 'true';
-const Timer = require(isProd ? '../../time_class' : '../../index');
+
+const Timer = require('../timer');
 
 const KBYTES = 1024;
 const MBYTES = KBYTES * KBYTES;
@@ -25,7 +25,7 @@ async function test({ i, t }) {
       const promise = timer.launchTimer(wait(undefined, timer));
       await promise;
       timer.done();
-    } catch (_) { }
+    } catch (_) {}
     // Comment following line to try a SEGF();
     timer.destroy();
   } catch (e) {
@@ -33,19 +33,14 @@ async function test({ i, t }) {
   }
 }
 
-tap.test('Stress test', async t => {
+tap.test('Stress test', async (t) => {
   const max = 500;
   console.log('');
   for (let i = 0; i < max; ++i) {
     console.log('\033[1A\033[KPromise', `${i + 1}/${max} -`, getOccurrencesMax());
     await test({ i, t });
   }
-  console.log(
-    '\033[1A\033[K\033[1A\033[KTimers:',
-    Timer.getAll(),
-    getOccurrencesMax(),
-    '\n\n'
-  );
+  console.log('\033[1A\033[K\033[1A\033[KTimers:', Timer.getAll(), getOccurrencesMax(), '\n\n');
   t.pass('Stress went well!');
   t.end();
 });

@@ -1,12 +1,12 @@
 const tap = require('tap');
 const { SECOND, wait } = require('../helpers/wait');
-const isProd = process.env.ISPROD === 'true';
-const Timer = require(isProd ? '../../time_class' : '../../index');
 
-tap.test('Getters test', t => {
+const Timer = require('../timer');
+
+tap.test('Getters test', (t) => {
   t.jobs = 6;
-  
-  t.test('Get CreatedAt', t => {
+
+  t.test('Get CreatedAt', (t) => {
     const timer = new Timer();
     const now = new Date();
     const createdAt = timer.createdAt;
@@ -16,8 +16,8 @@ tap.test('Getters test', t => {
     else t.fail();
     t.end();
   });
-  
-  t.test('Get startedAt', t => {
+
+  t.test('Get startedAt', (t) => {
     const timer = new Timer(SECOND);
     timer.launchTimer(() => {});
     const now = new Date();
@@ -28,16 +28,16 @@ tap.test('Getters test', t => {
     else t.fail();
     t.end();
   });
-  
-  t.test('Get startedAt Not started', t => {
+
+  t.test('Get startedAt Not started', (t) => {
     const timer = new Timer();
     const startedAt = timer.startedAt;
     if (!startedAt) t.pass();
     else t.fail();
     t.end();
   });
-  
-  t.test('Get isSelfAborted (true)', async t => {
+
+  t.test('Get isSelfAborted (true)', async (t) => {
     const timer = new Timer(SECOND / 2, { destroy: false });
     const promise = timer.launchTimer(wait(undefined, timer));
     try {
@@ -50,8 +50,8 @@ tap.test('Getters test', t => {
     }
     t.end();
   });
-  
-  t.test('Get isSelfAborted (false) & isAborted', async t => {
+
+  t.test('Get isSelfAborted (false) & isAborted', async (t) => {
     const timer = new Timer(SECOND, { destroy: false });
     const promise = timer.launchTimer(wait(undefined, timer));
     try {
@@ -69,8 +69,8 @@ tap.test('Getters test', t => {
     }
     t.end();
   });
-  
-  t.test('Get time', async t => {
+
+  t.test('Get time', async (t) => {
     const timer = new Timer(SECOND);
     timer.time = 2 * SECOND;
     timer.time = 'wuoifne';

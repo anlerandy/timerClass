@@ -1,25 +1,26 @@
 const tap = require('tap');
 const { wait, SECOND } = require('../helpers/wait');
-const isProd = process.env.ISPROD === 'true';
-const Timer = require(isProd ? '../../time_class' : '../../index');
 
-tap.test('Update tests', async t => {
+const Timer = require('../timer');
+
+tap.test('Update tests', async (t) => {
   t.jobs = 2;
-  t.test('Sucessful updates (async)', async t => {
+  t.test('Sucessful updates (async)', async (t) => {
     const timer = new Timer(SECOND);
     const promise = wait(undefined, timer);
-    return timer.launchTimer(promise)
-      .then(_ => {
+    return timer
+      .launchTimer(promise)
+      .then((_) => {
         t.pass('Updates went well.');
         t.end();
       })
-      .catch(_ => {
+      .catch((_) => {
         t.fail('It timed out?!');
         t.end();
       });
   });
 
-  t.test('Sucessful updates (sync)', async t => {
+  t.test('Sucessful updates (sync)', async (t) => {
     const timer = new Timer(SECOND);
     const test = new Promise((resolve, _) => {
       const failed = () => {
@@ -30,7 +31,7 @@ tap.test('Update tests', async t => {
       timer.launchTimer(failed);
       const succeed = () => {
         try {
-          timer.done()
+          timer.done();
         } catch (e) {
           t.fail('timer.done() is not working properly', e.message || e);
           return;

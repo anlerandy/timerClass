@@ -1,10 +1,10 @@
 {
   "name": "@anlerandy/timer",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Timeout manager for sensible process.",
   "main": "index.js",
   "scripts": {
-    "test": "clear && ISPROD=true node ./node_modules/tap/bin/run.js --coverage-report=html ./unit_tests/index.js",
+    "test": "clear && ISPROD=true node ./node_modules/tap/bin/run.js -j2 --coverage-report=html -T ./unit_tests/index.js",
     "buildtest": "npm run build && clear && ISPROD=false node ./node_modules/tap/bin/run.js --coverage-report=html ./unit_tests/index.js",
     "memtest": "clear && ISPROD=true node --max_old_space_size=6 ./unit_tests/tests/memory.js",
     "buildmemtest": "npm run build && clear && ISPROD=false node --max_old_space_size=6 ./unit_tests/tests/memory.js",

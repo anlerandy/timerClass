@@ -8,13 +8,14 @@ const SECOND = 1000;
 const MINUTE = 60 * SECOND;
 const MARGIN = 100;
 
-const _ALL = new Array(13).fill(undefined).map(_ => new WeakMap());
+const _ALL = new Array(14).fill(undefined).map((_) => new WeakMap());
 const [
   createdAt,
   startedAt,
   aborted,
   outed,
   lastUpdate,
+  _lastUpdate,
   inProgress,
   _destroy,
   _timeId,
@@ -31,21 +32,21 @@ const TIMERS = new WeakMap();
  * Timer Class
  * @summary Timeout manager for sensible process.
  * @class
- * 
+ *
  * Manage time limit of a task/process/function and run a callback upon timeout.
  * Instances can be save inside the Class and retrieved throughout an app.
- * @see {@link https://github.com/anlerandy/timerClass#readme README} 
+ * @see {@link https://github.com/anlerandy/timerClass#readme README}
  * @author anlerandy
  */
 class Timer {
-   /** 
+  /**
    * @param {number} [time=120000] - The time in millisecond before timer termination.
    * @param {object} [options] - Options of the timer.
    * @param {string|number} [options.id] - Identify the instance.
    * @param {boolean} [options.forceCreate=false] - Force creation.
    * @param {boolean} [options.save=true] - Save the instance in the Class.
    * @param {boolean} [options.destroy=true] - Destroy the instance after termination.
-   * 
+   *
    * @throws If options.id is already used or invalid and forceCreate is false.
    */
   constructor(time, options = {}) {
@@ -56,7 +57,9 @@ class Timer {
     try {
       id = getId(id);
       if (!id) {
-        raiseError('Timer already exist. To retrieve the existing one, please use `getById` Method.');
+        raiseError(
+          'Timer already exist. To retrieve the existing one, please use `getById` Method.'
+        );
       }
     } catch (e) {
       if (!forceCreate) {
@@ -70,14 +73,13 @@ class Timer {
       TIMERS.set(Timer, { ...TIMERS.get(Timer), [this._id]: this });
     }
 
-    lastUpdate.set(this, new Date());
     createdAt.set(this, new Date());
     aborted.set(this, false);
     outed.set(this, false);
     inProgress.set(this, false);
     _destroy.set(this, destroy);
     _log.set(this, initLogger(log, parseInt(verbose), this));
-    this.time = (time || 2 * MINUTE);
+    this.time = time || 2 * MINUTE;
   }
 
   /**
@@ -90,7 +92,7 @@ class Timer {
     const parsedTime = parseInt(timestamp);
     if (!this._id || `${parsedTime}` !== `${timestamp}`) return;
     _timestamp.set(this, parsedTime + MARGIN);
-    this._tick(this);
+    this._tick();
   }
 
   get time() {
@@ -143,6 +145,16 @@ class Timer {
   }
 
   /**
+   * Last update timestamp of the instance clock.
+   * @readonly
+   * @instance
+   * @type {Number}
+   */
+  get _lastUpdate() {
+    return _lastUpdate.get(this);
+  }
+
+  /**
    * Instance running state.
    * @readonly
    * @instance
@@ -182,7 +194,7 @@ class Timer {
       raiseError('Please abort() or done() the Timer before destroying it.');
     const { [this._id]: timer, ...others } = TIMERS.get(Timer);
     TIMERS.set(Timer, others);
-    _ALL.map(el => el.delete(this));
+    _ALL.map((el) => el.delete(this));
   }
 
   /**
@@ -221,7 +233,10 @@ class Timer {
    */
   update(...log) {
     if (!(this || {}).inProgress) return;
-    lastUpdate.set(this, new Date());
+    const date = new Date();
+    lastUpdate.set(this, date);
+    // setTimeout is apparently changing Date value, it is needed to have directly the BigInt:
+    _lastUpdate.set(this, date.valueOf());
     _log.get(this).update(...log);
   }
 
@@ -242,25 +257,47 @@ class Timer {
     if (!this._id) raiseError(BEINGDELETE);
     if (callback instanceof Promise) return this.launchTimerPromise(callback, arg, ...log);
     if (!callback || !isFunction(callback))
-      throw new TypeError(callback ? 'The passed callback is not a function.' : 'Callback is required.');
+      throw new TypeError(
+        callback ? 'The passed callback is not a function.' : 'Callback is required.'
+      );
     _callback.set(this, callback);
     _arg.set(this, arg);
     aborted.set(this, false);
     outed.set(this, false);
     inProgress.set(this, true);
-    startedAt.set(this, new Date());
-    _timeId.set(this, setTimeout(this._tick, this._time, this));
+
+    const date = new Date();
+    startedAt.set(this, date);
+    lastUpdate.set(this, date);
+    _lastUpdate.set(this, date.valueOf());
+    _timeId.set(this, this._set());
+
     _log.get(this).launch(...log);
   }
 
-  _tick(self) {
-    if (!(self instanceof Timer)) raiseError('Tick is being called without instance of Timer.');
-    clearTimeout(self._timeId);
-    verifyTime(self);
-    if (self.inProgress) {
-      const nextTick = (self.lastUpdate.valueOf() + self._time) - new Date().valueOf();
-      _timeId.set(this, setTimeout(self._tick, nextTick, self));
+  _tick() {
+    clearTimeout(this._timeId);
+    verifyTime(this);
+
+    if (this.inProgress) {
+      _timeId.set(this, this._set());
     }
+  }
+
+  _set() {
+    const last = this._lastUpdate;
+    const now = new Date().valueOf();
+    const nextTick = last - now + this._time;
+
+    // Protect from BigInt and sacrificing a bit of performance
+    const NT2 = nextTick / 2 < MINUTE ? nextTick : nextTick / 2;
+    const NT10 = nextTick / 10 < MINUTE ? NT2 : nextTick / 10;
+    const NT100 = nextTick / 100 < MINUTE ? NT10 : nextTick / 100;
+    const NT1000 = nextTick / 1000 < MINUTE ? NT100 : nextTick / 1000;
+
+    const safeNext = parseInt(NT1000);
+
+    return setTimeout(this._tick.bind(this), safeNext);
   }
 
   _log(...args) {
@@ -306,7 +343,9 @@ class Timer {
    * @param {number} [options.time] - The time in millisecond before timer termination for a new instance.
    * @return {Timer|undefined} Return timer instance or undefined.
    */
-  static getById(id, options) { return getTimerById(id, options) };
+  static getById(id, options) {
+    return getTimerById(id, options);
+  }
 
   /**
    * Retrieve all timer instances.
@@ -314,7 +353,9 @@ class Timer {
    * @function getAll
    * @return {Array<Timer>} Always return an Array.
    */
-  static getAll() { return Object.values(TIMERS.get(Timer)) };
+  static getAll() {
+    return Object.values(TIMERS.get(Timer));
+  }
 
   /**
    * Destroys all instances saved in Class. Can force termination before destroy.
@@ -322,20 +363,22 @@ class Timer {
    * @function destroyAll
    * @param {boolean} force - Determines if method should force termination.
    */
-  static destroyAll(force) { destroyAll(force) };
-};
+  static destroyAll(force) {
+    destroyAll(force);
+  }
+}
 
 function verifyTime(timer) {
   if (timer.isAborted || !timer.inProgress) return;
   const now = new Date().valueOf();
-  const limit = timer.lastUpdate.valueOf() + timer._time;
+  const limit = timer._lastUpdate + timer._time;
   if (now >= limit) {
     outed.set(timer, true);
     timer.abort();
   }
 }
 
-function getId(id){
+function getId(id) {
   const timers = TIMERS.get(Timer);
   if (id) {
     validateId(id);
@@ -357,7 +400,7 @@ function getTimerById(id, options = {}) {
 }
 
 function destroyAll(force = false) {
-  Timer.getAll().map(timer => {
+  Timer.getAll().map((timer) => {
     if (force) timer.abort();
     try {
       timer.destroy();

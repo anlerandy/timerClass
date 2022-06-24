@@ -1,20 +1,20 @@
 const tap = require('tap');
 const { SECOND } = require('../helpers/wait');
-const isProd = process.env.ISPROD === 'true';
-const Timer = require(isProd ? '../../time_class' : '../../index');
 
-tap.test('Save & Destroy tests', async t => {
+const Timer = require('../timer');
+
+tap.test('Save & Destroy tests', async (t) => {
   t.jobs = 6;
 
-  t.test('Create timer without saving it', t => {
+  t.test('Create timer without saving it', (t) => {
     new Timer(SECOND, { id: 'notSaved', save: false });
     const savedTimer = Timer.getById('notSaved', { createOne: false });
     if (savedTimer) t.fail('Should not exist...');
     else t.pass('Timer not found.');
     t.end();
   });
-  
-  t.test('Create & destroy', t => {
+
+  t.test('Create & destroy', (t) => {
     const timer = new Timer(SECOND, { id: 'saved' });
     const saved = Timer.getById('saved', { createOne: false });
     if (!saved) t.fail('The timer was not saved?!');
@@ -27,8 +27,8 @@ tap.test('Save & Destroy tests', async t => {
     }
     t.end();
   });
-  
-  t.test('Double destroy', t => {
+
+  t.test('Double destroy', (t) => {
     const timer = new Timer(SECOND, { save: false });
     timer.destroy();
     try {
@@ -39,8 +39,8 @@ tap.test('Save & Destroy tests', async t => {
     }
     t.end();
   });
-  
-  t.test('Done & Abort after destroy', t => {
+
+  t.test('Done & Abort after destroy', (t) => {
     const timer = new Timer(SECOND, { save: false });
     timer.destroy();
     let i = 0;
@@ -55,8 +55,8 @@ tap.test('Save & Destroy tests', async t => {
     }
     t.end();
   });
-  
-  t.test('Destroy timer through done', t => {
+
+  t.test('Destroy timer through done', (t) => {
     const timer = new Timer(SECOND, { save: false });
     timer.launchTimer(console.log);
     timer.done();
@@ -64,8 +64,8 @@ tap.test('Save & Destroy tests', async t => {
     else t.pass('Done correctly destroyed the timer.');
     t.end();
   });
-  
-  t.test('Done does not destroy', t => {
+
+  t.test('Done does not destroy', (t) => {
     const timer = new Timer(SECOND, { destroy: false });
     timer.done();
     if (!timer._id) t.fail('Timer has been destroyed');

@@ -1,82 +1,87 @@
 const tap = require('tap');
 const sleep = require('../helpers/sleep');
 const { wait, waitFail, SECOND } = require('../helpers/wait');
-const isProd = process.env.ISPROD === 'true';
-const Timer = require(isProd ? '../../time_class' : '../../index');
 
-tap.test('Promise tests', async t => {
+const Timer = require('../timer');
+
+tap.test('Promise tests', async (t) => {
   t.jobs = 6;
-  t.test('Reject Promise due to timeout', async t => {
+  t.test('Reject Promise due to timeout', async (t) => {
     const promise = wait(undefined);
-    return new Timer(10).launchTimer(promise)
-      .then(_ => {
+    return new Timer(10)
+      .launchTimer(promise)
+      .then((_) => {
         t.fail('It Succeed...?!');
         t.end();
       })
-      .catch(error => {
+      .catch((error) => {
         t.equal(error, 'TimeOut');
         t.end();
       });
   });
-  
-  t.test('Reject Promise due to timeout with pass error log', async t => {
+
+  t.test('Reject Promise due to timeout with pass error log', async (t) => {
     const timer = new Timer(10);
     const promise = wait(undefined, timer);
     const errorMsg = 'Time runned out.';
-    return timer.launchTimer(promise, errorMsg)
-      .then(_ => {
+    return timer
+      .launchTimer(promise, errorMsg)
+      .then((_) => {
         t.fail('It Succeed...?!');
         t.end();
       })
-      .catch(error => {
+      .catch((error) => {
         t.equal(error, errorMsg);
         t.end();
       });
   });
-  
-  t.test('Resolve Promise', async t => {
+
+  t.test('Resolve Promise', async (t) => {
     const timer = new Timer(2 * SECOND);
     const promise = wait(undefined, timer);
-    return timer.launchTimer(promise)
-      .then(_ => {
+    return timer
+      .launchTimer(promise)
+      .then((_) => {
         t.pass('Good, it succeed.');
         t.end();
       })
-      .catch(_ => {
+      .catch((_) => {
         t.fail('It failed...?!');
         t.end();
       });
   });
-  
-  t.test('Reject Promise due to promise failure', async t => {
+
+  t.test('Reject Promise due to promise failure', async (t) => {
     const timer = new Timer(2 * SECOND);
     const promise = waitFail(undefined, timer);
-    return timer.launchTimerPromise(promise)
-      .then(_ => {
+    return timer
+      .launchTimerPromise(promise)
+      .then((_) => {
         t.fail('It Succeed...?!');
         t.end();
       })
-      .catch(_ => {
+      .catch((_) => {
         t.pass('Good, it Failed.');
         t.end();
       });
   });
-  
-  t.test('Reject Promise due to promise failure with pass error log', async t => {
+
+  t.test('Reject Promise due to promise failure with pass error log', async (t) => {
     const timer = new Timer(2 * SECOND);
     const errorMsg = 'Promise Failed. We gave it an arg that should not be displayed.';
     const promise = waitFail(undefined, timer);
-    return timer.launchTimer(promise, errorMsg)
-      .then(_ => t.fail('It Succeed...?!') && t.end())
-      .catch(error => {
+    return timer
+      .launchTimer(promise, errorMsg)
+      .then((_) => t.fail('It Succeed...?!') && t.end())
+      .catch((error) => {
         const msg = error && error.message;
         if (!msg) t.fail('Why there is no error?');
-        else t.notEqual(msg, errorMsg);
+        else t.not(msg, errorMsg);
         t.end();
       });
   });
-  
-  t.test('Reject Promise due to timeout after setting time', async t => {
+
+  t.test('Reject Promise due to timeout after setting time', async (t) => {
     const timer = new Timer(2 * SECOND);
     const errorMsg = 'Promise Failed. We gave it an arg that should not be displayed.';
     const promise = timer.launchTimer(wait(undefined, timer), errorMsg);

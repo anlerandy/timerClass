@@ -1,6 +1,7 @@
-const tap = require('tap');
-
-// tap.jobs = 1;
+// Long tests
+setTimeout(() => {
+  require('./tests/long');
+}, 100);
 
 // id basic tests
 require('./tests/get_id');
