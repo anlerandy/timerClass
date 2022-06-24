@@ -280,6 +280,7 @@ class Timer {
     verifyTime(this);
 
     if (this.inProgress) {
+      _log.get(this).tick();
       _timeId.set(this, this._set());
     }
   }

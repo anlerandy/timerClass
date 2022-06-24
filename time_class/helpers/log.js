@@ -1,11 +1,17 @@
-const DefaultV = { UPDATE: 'Updated', DONE: 'Done', ABORT: 'Aborted', LAUNCH: 'Launched' };
+const DefaultV = {
+  UPDATE: 'Updated',
+  DONE: 'Done',
+  ABORT: 'Aborted',
+  LAUNCH: 'Launched',
+  TICK: 'Ticked'
+};
 
 function formatHour(date = new Date()) {
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const seconds = date.getSeconds();
-    const millis = date.getMilliseconds();
-    return `${hours}:${minutes}:${seconds}:${millis}`;
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const seconds = date.getSeconds();
+  const millis = date.getMilliseconds();
+  return `${hours}:${minutes}:${seconds}:${millis}`;
 }
 
 function formatDate(date) {
@@ -17,28 +23,29 @@ function formatDate(date) {
   return `${dateString} ${hours}`;
 }
 
-function getVerbose({args, log, level, timer: { _id, lastUpdate, time }}) {
+function getVerbose({ args, log, level, timer: { _id, createdAt, lastUpdate = createdAt, time } }) {
   const msg = args.length ? args : [DefaultV[log]];
   const array = [...msg].filter(Boolean);
   const addLvl = parseInt(level / 10);
-  if (addLvl >= 1) array.push(`(_id: ${_id})` );
+  if (addLvl >= 1) array.push(`(_id: ${_id})`);
   if (addLvl >= 2) array.unshift(`${formatHour()}`);
-  if (addLvl === 3) {
+  if (addLvl >= 3) {
     const ms = lastUpdate.getMilliseconds();
     lastUpdate.setMilliseconds(ms + time);
-    array.push(`Timeout on ${formatDate(lastUpdate)}.`)
+    array.push(`Timeout on ${formatDate(lastUpdate)}.`);
   }
   return array;
 }
 
 function initLogger(logFn, level, timer) {
-    return {
-      update: updateLog(logFn, level, timer),
-      done: doneLog(logFn, level, timer),
-      abort: abortLog(logFn, level, timer),
-      launch: launchLog(logFn, level, timer),
-      log: defaultLog(logFn, level, timer)
-    }; 
+  return {
+    update: updateLog(logFn, level, timer),
+    done: doneLog(logFn, level, timer),
+    abort: abortLog(logFn, level, timer),
+    launch: launchLog(logFn, level, timer),
+    tick: tickLog(logFn, level, timer),
+    log: defaultLog(logFn, level, timer)
+  };
 }
 
 function defaultLog(logFn, level, timer) {
@@ -49,39 +56,47 @@ function defaultLog(logFn, level, timer) {
     } catch (e) {
       console.error('TIMER: Your logger is not working properly.', e);
     }
-  }
+  };
 }
 
 function updateLog(logFn, level, timer) {
   return function (...args) {
-    if (!args.length && (level % 10) < 3) return;
+    if (!args.length && level % 10 < 3) return;
     args = getVerbose({ args, log: 'UPDATE', level, timer });
     defaultLog(logFn)(...args);
-  }
+  };
+}
+
+function tickLog(logFn, level, timer) {
+  return function (...args) {
+    if (level % 10 < 4) return;
+    args = getVerbose({ args, log: 'TICK', level, timer });
+    defaultLog(logFn)(...args);
+  };
 }
 
 function doneLog(logFn, level, timer) {
   return function (...args) {
-    if (!args.length && (level % 10) < 2) return;
+    if (!args.length && level % 10 < 2) return;
     args = getVerbose({ args, log: 'DONE', level, timer });
     defaultLog(logFn)(...args);
-  }
+  };
 }
 
 function abortLog(logFn, level, timer) {
   return function (...args) {
-    if (!args.length && (level % 10) < 2) return;
+    if (!args.length && level % 10 < 2) return;
     args = getVerbose({ args, log: 'ABORT', level, timer });
     defaultLog(logFn)(...args);
-  }
+  };
 }
 
 function launchLog(logFn, level, timer) {
   return function (...args) {
-    if (!args.length && (level % 10) < 1) return;
+    if (!args.length && level % 10 < 1) return;
     args = getVerbose({ args, log: 'LAUNCH', level, timer });
     defaultLog(logFn)(...args);
-  }
+  };
 }
 
 module.exports = initLogger;
