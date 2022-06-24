@@ -23,17 +23,19 @@ function formatDate(date) {
   return `${dateString} ${hours}`;
 }
 
-function getVerbose({ args, log, level, timer: { _id, createdAt, lastUpdate = createdAt, time } }) {
+function getVerbose({
+  args,
+  log,
+  level,
+  timer: { _id, createdAt, _lastUpdate = createdAt.valueOf(), time }
+}) {
   const msg = args.length ? args : [DefaultV[log]];
+  const lastUpdate = new Date(_lastUpdate + time);
   const array = [...msg].filter(Boolean);
   const addLvl = parseInt(level / 10);
   if (addLvl >= 1) array.push(`(_id: ${_id})`);
   if (addLvl >= 2) array.unshift(`${formatHour()}`);
-  if (addLvl >= 3) {
-    const ms = lastUpdate.getMilliseconds();
-    lastUpdate.setMilliseconds(ms + time);
-    array.push(`Timeout on ${formatDate(lastUpdate)}.`);
-  }
+  if (addLvl >= 3) array.push(`Timeout on ${formatDate(lastUpdate)}.`);
   return array;
 }
 
