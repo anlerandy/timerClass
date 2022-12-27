@@ -79,7 +79,7 @@ tap.test('Getters test', (t) => {
     t.equal(timer.time, 2 * SECOND);
     timer.destroy();
     timer.time = SECOND;
-    t.equal(timer.time, undefined);
+    t.equal(timer.time, 0);
     t.end();
   });
 
