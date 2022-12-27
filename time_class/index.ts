@@ -210,7 +210,11 @@ export default class Timer {
     destroyAll(force);
   }
 
-  async launchTimerPromise(promise: Promise<any>, arg: any, ...log: Array<any>) {
+  async launchTimerPromise<T extends any>(
+    promise: Promise<T>,
+    arg: any,
+    ...log: Array<any>
+  ): Promise<T> {
     if (!this) raiseError(THREADSCOPE);
     if (this.inProgress) raiseError(ALREADYRUN);
     if (!(promise instanceof Promise)) throw new TypeError('`First argument` must be a Promise.');
@@ -219,22 +223,28 @@ export default class Timer {
     try {
       const result = await Promise.race([promise, timerPromise]);
       this.done();
-      return result;
+      return result as T;
     } catch (e) {
       this.abort();
       throw e;
     }
   }
 
-  launchTimer(
-    callback: Promise<any> | ((...args: any[]) => any | Promise<any>),
+  launchTimer<T extends any>(callback: Promise<T>, arg?: any, ...log: Array<any>): Promise<T>;
+  launchTimer<T extends any>(
+    callback: (...args: any[]) => T | Promise<T>,
+    arg?: any,
+    ...log: Array<any>
+  ): undefined;
+  launchTimer<T extends any>(
+    callback: Promise<T> | ((...args: any[]) => T | Promise<T>),
     arg: any = 'TimeOut',
     ...log: Array<any>
-  ): Promise<any> | undefined {
+  ) {
     if (!this) raiseError(THREADSCOPE);
     if (this.inProgress) raiseError(ALREADYRUN);
     if (!this._id) raiseError(BEINGDELETE);
-    if (callback instanceof Promise<any>) return this.launchTimerPromise(callback, arg, ...log);
+    if (callback instanceof Promise<T>) return this.launchTimerPromise(callback, arg, ...log);
     if (!callback || !isFunction(callback))
       throw new TypeError(
         callback ? 'The passed callback is not a function.' : 'Callback is required.'
@@ -252,6 +262,7 @@ export default class Timer {
     _timeId.set(this, this._set());
 
     _log.get(this).launch(...log);
+    return undefined;
   }
 }
 

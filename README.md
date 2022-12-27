@@ -1,4 +1,4 @@
-# Timer v^1.0.5
+# Timer v^2.0.0
 
 Add a timer to a promise by wrapping it.
 
@@ -15,6 +15,7 @@ const task = require('./my_asynchronous_function');
 const Timer = require('@anlerandy/timer');
 
 const promise = task();
+// Your function has 60'000ms (1minute) to finish
 const result = await new Timer(60000).launchTimer(promise);
 ```
 
@@ -35,59 +36,72 @@ const result = await new Timer(60000).launchTimer(promise);
       }
       clearTimeout(id);
     })
-  ```
+
+````
 </details>
 
 
 ## Callback
 
 ```javascript
-  const task = require('./my_function');
-  const Timer = require('@anlerandy/timer');
+const task = require('./my_function');
+const Timer = require('@anlerandy/timer');
 
-  const timer = new Timer();
+const timer = new Timer();
 
-  task(callback);
-  launchTimer(onFailure); // Launch clock and calls onFailure if time runs out
+task(callback);
+launchTimer(onFailure); // Launch clock and calls onFailure if time runs out
 
-  function callback(error) {
-    timer.done(); // Stop the clock without calling onFailure
-    if (error) {
-      return onFailure();
-    }
-    // Do Something
+function callback(error) {
+  timer.done(); // Stop the clock without calling onFailure
+  if (error) {
+    return onFailure();
   }
+  // Do Something
+}
 
-  function onFailure() {
-    // Do Something
-  }
-```
+function onFailure() {
+  // Do Something
+}
+````
 
-# Class
-
-## **new Timer([time](https://github.com/anlerandy/timerClass/blob/master/documentations/OPTIONS.md#time)?: number, [options](https://github.com/anlerandy/timerClass/blob/master/documentations/OPTIONS.md#options)?: object)**
-
-Instanciate a timer set.  
-`time` parameter is in millisecond.
-
-## **Timer.getById([id](https://github.com/anlerandy/timerClass/blob/master/documentations/OPTIONS.md#id): string, [options](https://github.com/anlerandy/timerClass/blob/master/documentations/OPTIONS.md#options)?: object)**
-
-Return an instance of Timer by `id`.  
-Unless `options.createOne` is `true`, return `undefined` if no timer was found.  
-Could `throw` if timer creation fails.
+## Cron
 
 ```javascript
-  const timer = Timer.getById('myTaskId');
-  await timer.launchTimer(task());
+// toCronTask is async
+const toCronTask = require('./my_function_to_cron');
+const Timer = require('@anlerandy/timer');
+
+const cronId = 'cron-id';
+
+function start() {
+  // Create and save cron. If aborted/done, will self destruct (destroy: true)
+  Timer.getById(cronId, { createOne: true, destroy: true });
+  return loop();
+}
+
+function stop() {
+  const cron = Timer.getById(cronId);
+  // Unless already stop, it should exist since `start` call
+  if (cron) {
+    // Will be destroyed after done
+    cron.done();
+  }
+}
+
+function loop() {
+  toCronTask().finaly(() => {
+    // It was created in `start`
+    const cron = Timer.getById(cronId);
+    // Unless `cron` is destroyed, repeat `loop`
+    if (cron) {
+      // You can also verify if already launch through bad implementation that launched it twice
+      // if (!cron.inProgress)
+      cron.launchTimer(loop);
+    }
+  });
+}
 ```
-
-## **Timer.getAll()**
-
-Return an array of all saved timer instances.
-
-## **Timer.destroyAll(force?: boolean)**
-
-Delete all saved timer instances that are not running.
 
 # Instance properties
 
@@ -105,14 +119,15 @@ Changing `time` while Timer is running can result in a timeout.
 | isSelfAborted | `boolean` |   `false`   | True if the timer cancelled its task |
 | time          | `Number`  |  `120000`   | Time to wait before timeout (ms)     |
 
-All properties are `undefined` if the instance is being deleted.
+All properties are `undefined` or `0` if the instance is being deleted.
 
 ```js
 const timer = new Timer();
 timer.destroy();
 const date = timer.createdAt;
-console.log(date);
-// output: undefined
+const time = timer.time;
+console.log(date, time);
+// output: undefined, 0
 ```
 
 # Instance API

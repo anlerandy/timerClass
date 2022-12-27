@@ -23,4 +23,3 @@ jobs:
           node-version: 8
       - run: npm i
       - run: npm test
-      - run: npm run buildtest

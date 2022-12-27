@@ -1,7 +1,7 @@
 // Long tests
-setTimeout(() => {
-  require('./tests/long');
-}, 100);
+// setTimeout(() => {
+//   require('./tests/long');
+// }, 100);
 
 // id basic tests
 require('./tests/get_id');
