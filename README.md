@@ -95,7 +95,7 @@ function loop() {
     const cron = Timer.getById(cronId);
     // Unless `cron` is destroyed, repeat `loop`
     if (cron) {
-      // You can also verify if already launch through bad implementation that launched it twice
+      // You can also verify if accidently launched and keep it from launching twice
       // if (!cron.inProgress)
       cron.launchTimer(loop);
     }
@@ -137,6 +137,10 @@ console.log(date, time);
 Run the timer.  
 If `callback` argument is a function, it returns `undefined`.  
 If it's a `Promise`, it will return a `Promise`.
+
+## **timer.launchOrUpdate(callback: function | promise, argument?)**
+
+Run the timer or [update](#timerupdate) it if already `inProgress`.
 
 ## **timer.done()**
 
