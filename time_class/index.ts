@@ -274,6 +274,28 @@ export default class Timer {
     _log.get(this).launch(...log);
     return undefined;
   }
+
+  launchOrUpdate<T extends any>(
+    callback: Promise<T>,
+    arg?: any,
+    ...log: Array<any>
+  ): Promise<T> | undefined;
+  launchOrUpdate<T extends any>(
+    callback: (...args: any[]) => T | Promise<T>,
+    arg?: any,
+    ...log: Array<any>
+  ): undefined;
+  launchOrUpdate<T extends any>(
+    callback: Promise<T> | ((...args: any[]) => T | Promise<T>),
+    arg: any = 'TimeOut',
+    ...log: Array<any>
+  ) {
+    if (!this) raiseError(THREADSCOPE);
+    if (!this._id) raiseError(BEINGDELETE);
+    if (this.inProgress) this.update();
+    else if (callback instanceof Promise) return this.launchTimerPromise(callback, arg, ...log);
+    else return this.launchTimer(callback, arg, ...log);
+  }
 }
 
 function getId(id?: number | string) {

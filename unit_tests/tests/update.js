@@ -1,4 +1,5 @@
 const tap = require('tap');
+const sleep = require('../helpers/sleep');
 const { wait, SECOND } = require('../helpers/wait');
 
 const Timer = require('../timer');
@@ -44,6 +45,35 @@ tap.test('Update tests', async (t) => {
     const result = await test;
     t.end();
     return result;
+  });
+
+  t.test('Launch Or Update (Fail)', async (t) => {
+    const timer = new Timer(SECOND);
+    const promise = timer.launchOrUpdate(sleep(3 * SECOND));
+    sleep(SECOND).then(() => {
+      timer.launchOrUpdate(promise);
+    });
+    try {
+      await promise;
+      t.fail('Still manage to succeed...? Next test will be invalid.');
+    } catch {
+      t.pass('Failed accordingly.');
+    }
+    t.end();
+  });
+
+  t.test('Launch Or Update', async (t) => {
+    const timer = new Timer(SECOND);
+    const promise = timer.launchOrUpdate(sleep(3 * SECOND));
+    sleep(SECOND).then(() => {
+      timer.launchOrUpdate(promise);
+      sleep(SECOND).then(() => {
+        timer.launchOrUpdate(promise);
+      });
+    });
+    await promise;
+    t.pass('Succeed to launch and update with same function.');
+    t.end();
   });
 
   t.end();
