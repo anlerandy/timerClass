@@ -1,3 +1,3 @@
-const Timer = require('../index').default;
+const Timer = require('../').default;
 
 module.exports = Timer;

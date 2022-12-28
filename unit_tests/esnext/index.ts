@@ -1,4 +1,4 @@
-import Timer from '../../lib';
+import Timer from '../../';
 import tap from 'tap';
 
 // This is only for checking import from TS project and IDE behaviours.
