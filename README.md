@@ -8,6 +8,13 @@ Add a timer to a promise by wrapping it.
 
 # Usage
 
+```javascript
+// ES6
+import Timer from '@anlerandy/timer';
+// CommonJS
+var Timer = require('@anlerandy/timer').default;
+```
+
 ## Promise
 
 ```javascript
