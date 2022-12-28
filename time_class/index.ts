@@ -97,7 +97,7 @@ export default class Timer {
     return _timestamp.get(this) - MARGIN;
   }
 
-  get _time(): number {
+  private get _time(): number {
     return _timestamp.get(this);
   }
 
@@ -125,7 +125,7 @@ export default class Timer {
     return inProgress.get(this);
   }
 
-  get _timeId(): NodeJS.Timeout | undefined {
+  private get _timeId(): NodeJS.Timeout | undefined {
     return _timeId.get(this);
   }
 
@@ -142,9 +142,9 @@ export default class Timer {
     _log.get(this).log(...args);
   }
 
-  _tick() {
+  private _tick() {
     clearTimeout(this._timeId);
-    verifyTime(this);
+    this._verifyTime(this);
 
     if (this.inProgress) {
       _log.get(this).tick();
@@ -152,7 +152,7 @@ export default class Timer {
     }
   }
 
-  _set() {
+  private _set() {
     const last = this._lastUpdate;
     const now = new Date().valueOf();
     const nextTick = last - now + this._time;
@@ -230,6 +230,16 @@ export default class Timer {
     }
   }
 
+  private _verifyTime(timer: Timer) {
+    if (timer.isAborted || !timer.inProgress) return;
+    const now = new Date().valueOf();
+    const limit = timer._lastUpdate + timer._time;
+    if (now >= limit) {
+      outed.set(timer, true);
+      timer.abort();
+    }
+  }
+
   launchTimer<T extends any>(callback: Promise<T>, arg?: any, ...log: Array<any>): Promise<T>;
   launchTimer<T extends any>(
     callback: (...args: any[]) => T | Promise<T>,
@@ -263,16 +273,6 @@ export default class Timer {
 
     _log.get(this).launch(...log);
     return undefined;
-  }
-}
-
-function verifyTime(timer: Timer) {
-  if (timer.isAborted || !timer.inProgress) return;
-  const now = new Date().valueOf();
-  const limit = timer._lastUpdate + timer._time;
-  if (now >= limit) {
-    outed.set(timer, true);
-    timer.abort();
   }
 }
 
