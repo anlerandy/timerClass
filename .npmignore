@@ -11,3 +11,4 @@ out
 npm-debug.log
 documentations
 tscongfig.json
+.prettierrc.js

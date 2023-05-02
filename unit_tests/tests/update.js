@@ -62,7 +62,7 @@ tap.test('Update tests', async (t) => {
     t.end();
   });
 
-  t.test('Launch Or Update', async (t) => {
+  t.test('Launch Or Update (Promise)', async (t) => {
     const timer = new Timer(SECOND);
     const promise = timer.launchOrUpdate(sleep(3 * SECOND));
     sleep(SECOND).then(() => {
@@ -73,6 +73,71 @@ tap.test('Update tests', async (t) => {
     });
     await promise;
     t.pass('Succeed to launch and update with same function.');
+    t.end();
+  });
+
+  t.test('Launch Or Update (Callback)', async (t) => {
+    const timer = new Timer(SECOND, { destroy: false });
+    let i = 0;
+
+    function _() {
+      ++i;
+    }
+
+    timer.launchOrUpdate(_);
+
+    await sleep(SECOND).then(() => {
+      // Since we waited exactly 1 Second, no callback = i === 0;
+      timer.launchOrUpdate(_);
+      return sleep(2 * SECOND).then(async () => {
+        // Since we waited 2 Seconds, callback = i === 1;
+        timer.launchOrUpdate(_);
+        return await sleep(2 * SECOND).then(async () => {
+          // Since we waited 2 Seconds, callback = i === 2;
+          timer.launchOrUpdate(_);
+          return await sleep(SECOND);
+        });
+      });
+    });
+    // Since we waited exactly 1 Second, no callback = i === 2;
+
+    timer.done();
+    t.same(i, 2);
+    t.end();
+  });
+
+  t.test('Launch Or Update (Interval)', async (t) => {
+    const timer = new Timer(SECOND, { destroy: false });
+    let i = 0;
+
+    function _() {
+      timer.launchOrUpdate(() => {
+        ++i;
+        _();
+      });
+    }
+
+    _();
+    await sleep(SECOND);
+    _();
+    // i === 0;
+    await sleep(1.5 * SECOND);
+    _();
+    // i === 1;
+    await sleep(SECOND);
+    _();
+    // i === 1;
+    await sleep(2.5 * SECOND);
+    _();
+    // i === 3;
+    await sleep(SECOND);
+    _();
+    // i === 3;
+
+    timer.done();
+    await sleep(1.3 * SECOND);
+    // i === 3;
+    t.same(i, 3);
     t.end();
   });
 

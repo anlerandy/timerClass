@@ -176,8 +176,10 @@ export default class Timer {
     const callback = _callback.get(this);
     const arg = _arg.get(this);
     _log.get(this).abort(...log);
+    inProgress.set(this, false);
     callback(arg);
-    this.done();
+    clearTimeout(this._timeId);
+    if (_destroy.get(this)) this.destroy();
   }
 
   destroy() {
